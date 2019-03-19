@@ -111,8 +111,7 @@ public class LoginAuthFilter implements Filter {
         response.setStatus(200);
         response.setHeader("Pragma", "No-cache");
         response.setHeader("Cache-Control", "no-store");
-        Long expires = 1000 * 60 * 60 * 24 * 7L; //defualt 7d
-        response.setDateHeader("Expires", expires);
+        response.setDateHeader("Expires", 0);
     }
 
     private void needAuthenticate(final HttpServletRequest request, final HttpServletResponse response) {
