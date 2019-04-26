@@ -380,9 +380,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</connection>
-        <developerConnection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</developerConnection>
-        <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
+        <connection>scm:git:https://github.com/owen-jia/lts-parent.git</connection>
+        <developerConnection>scm:git:https://github.com/owen-jia/lts-parent.git</developerConnection>
+        <url>https://github.com/owen-jia/lts-parent.git</url>
     </scm>
 
     <developers>
@@ -390,11 +390,17 @@
             <id>hugui.hg</id>
             <name>hugui</name>
             <email>254963746@qq.com</email>
+            <roles>
+                <role>creater</role>
+            </roles>
         </developer>
         <developer>
             <id>owen.jia</id>
             <name>Owen Jia</name>
             <email>owen-jia@outlook.com</email>
+            <roles>
+                <role>owner</role>
+            </roles>
         </developer>
     </developers>
 </project>
