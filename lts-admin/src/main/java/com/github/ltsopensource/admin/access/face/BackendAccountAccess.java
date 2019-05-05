@@ -19,4 +19,10 @@ public interface BackendAccountAccess {
     Long count(AccountReq request);
 
     void delete(AccountReq request);
+
+    /**
+     * 根据id修改信息
+     * @param request
+     */
+    boolean modifyInfoById(AccountReq request);
 }

@@ -5,8 +5,13 @@ import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.access.face.BackendAccountAccess;
 import com.github.ltsopensource.admin.request.AccountReq;
 import com.github.ltsopensource.core.cluster.Config;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
+import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.monitor.access.mysql.MysqlAbstractJdbcAccess;
+import com.github.ltsopensource.queue.mysql.MysqlPreLoader;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
+import com.github.ltsopensource.store.jdbc.builder.UpdateSql;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 
 import java.util.List;
@@ -16,6 +21,7 @@ import java.util.List;
  * @time: 2019/3/19 13:32
  */
 public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implements BackendAccountAccess {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlBackendAccountAccess.class);
 
     public MysqlBackendAccountAccess(Config config) {
         super(config);
@@ -57,4 +63,18 @@ public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implement
                 .andOnNotNull("username = ?", request.getUsername());
     }
 
+    @Override
+    public boolean modifyInfoById(AccountReq request) {
+        try {
+            return new UpdateSql(getSqlTemplate())
+                    .update()
+                    .table(getTableName())
+                    .setOnNotNull("password", request.getPassword())
+                    .where("id=?", request.getId())
+                    .doUpdate() == 1;
+        } catch (Exception e){
+            LOGGER.error("Error when modify password:" + e.getMessage(), e);
+            return false;
+        }
+    }
 }
