@@ -113,6 +113,16 @@ public class CommonView {
 		return "suspendJobQueue";
 	}
 
+    /**
+     * 跳转修改密码页面
+     * @return
+     */
+    @RequestMapping("/authority/modify-password")
+    public String modifyPasswordUI(Model model) {
+        setAttr(model);
+        return "authority/modifyPassword";
+    }
+
     private void setAttr(Model model) {
         List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);

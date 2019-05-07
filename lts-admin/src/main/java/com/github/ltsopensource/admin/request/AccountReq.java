@@ -6,9 +6,11 @@ package com.github.ltsopensource.admin.request;
  * @time: 2019/3/19 13:42
  */
 public class AccountReq {
-    Long id;
+    Integer id;
     String username;
     String password;
+    String oldPassword;
+    String email;
 
     public String getUsername() {
         return username;
@@ -18,11 +20,11 @@ public class AccountReq {
         this.username = username;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -34,12 +36,30 @@ public class AccountReq {
         this.password = password;
     }
 
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return "AccountReq{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", oldPassword='" + oldPassword + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }

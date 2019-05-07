@@ -60,6 +60,7 @@ public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implement
 
     public WhereSql buildWhereSql(AccountReq request) {
         return new WhereSql()
+                .andOnNotNull("id=?", request.getId())
                 .andOnNotNull("username = ?", request.getUsername());
     }
 
