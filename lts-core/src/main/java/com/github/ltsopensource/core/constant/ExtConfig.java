@@ -133,6 +133,10 @@ public interface ExtConfig {
      */
     String JOB_TRACKER_PRELOADER_FACTOR = "job.preloader.factor";
     /**
+     * JobTracker端: Job preload 信号检测频率
+     */
+    String JOB_TRACKER_PRELOADER_SIGNAL_CHECK_INTERVAL = "job.preloader.signal.check.interval";
+    /**
      * Netty Frame 的最大长度(自己一般不用设置)
      */
     String NETTY_FRAME_LENGTH_MAX = "netty.frame.length.max";
@@ -216,4 +220,13 @@ public interface ExtConfig {
     String JOB_RETRY_TIME_GENERATOR = "jobtracker.retry.time.generator";
 
     String M_STAT_REPORTER_CLOSED  = "mStatReporterClosed";
+
+    String JOB_TRACKER_PUSHER_THREAD_NUM = "lts.job.tracker.pusher.thread.num";
+
+    String JOB_TRACKER_PUSH_BATCH_SIZE = "lts.job.tracker.push.batch.size";
+
+    String TASK_TRACKER_BIZ_LOGGER_FAIL_STORE_CLOSE = "lts.task.tracker.biz.logger.failstore.close";
+
+    String TASK_TRACKER_JOB_RESULT_FAIL_STORE_CLOSE = "lts.task.tracker.job.result.failstore.close";
+
 }

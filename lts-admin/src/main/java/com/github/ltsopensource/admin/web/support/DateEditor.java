@@ -14,7 +14,7 @@ import java.util.Date;
  */
 public class DateEditor extends PropertyEditorSupport {
 
-//    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    //    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private DateFormat dateFormat;
