@@ -3,19 +3,9 @@
 LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持实时任务，定时任务和Cron任务。有较好的伸缩性，扩展性，健壮稳定性而被多家公司使用，同时也希望开源爱好者一起贡献。
 
 ## 项目地址
-github地址:
-[https://github.com/ltsopensource/light-task-scheduler](https://github.com/ltsopensource/light-task-scheduler)
+欢迎更多的大牛能够加入一起维护。
 
-oschina地址:
-[http://git.oschina.net/hugui/light-task-scheduler](http://git.oschina.net/hugui/light-task-scheduler)
-
-例子: 
-[https://github.com/ltsopensource/lts-examples](https://github.com/ltsopensource/lts-examples)
-
-文档地址(正在更新中,后面以这个为准):
-[https://www.gitbook.com/book/qq254963746/lts/details](https://www.gitbook.com/book/qq254963746/lts/details)
-
-这两个地址都会同步更新。感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
+请联系我，邮箱是：owen-jia@outlook.com
 
 ##1.6.9(master)变更主要点
 ####1. 取任务优先级,按任务设置的priority优先,再按triggerTime优先, 数据库的索引也会变
