@@ -28,9 +28,11 @@ public class SafeAuthorityApi extends AbstractMVC {
             return Builder.build(false,"id和password为必填！");
 
         boolean isOk = appContext.getBackendAccountAccess().modifyInfoById(request);
-        if(!isOk)
-            return Builder.build(false, "数据库异常！");
-        return Builder.build(true);
+        if(!isOk) {
+            LOGGER.error("[/safe/modify-password] 密码修改异常 AccountReq:{}", request.toString());
+            return Builder.build(false, "帐号不存在！");
+        }
+        return Builder.build(true,"密码修改成功！");
     }
 
 }
