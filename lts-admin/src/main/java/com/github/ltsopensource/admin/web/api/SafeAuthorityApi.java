@@ -3,17 +3,16 @@ package com.github.ltsopensource.admin.web.api;
 import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
 import com.github.ltsopensource.admin.request.AccountReq;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.AbstractMVC;
 import com.github.ltsopensource.admin.web.support.Builder;
 import com.github.ltsopensource.admin.web.vo.RestfulResponse;
-import com.github.ltsopensource.core.commons.utils.Base64;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,14 +47,14 @@ public class SafeAuthorityApi extends AbstractMVC {
     }
 
     @RequestMapping("/safe/account-get")
-    public RestfulResponse queryAccountInfo(HttpServletRequest request) {
-        String authorization = request.getHeader("authorization");
-        authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
-        String usernameAndPassword = new String(Base64.decodeFast(authorization));
-        String username = usernameAndPassword.split(":")[0];
+    public RestfulResponse queryAccountInfo() {
+//        String authorization = request.getHeader("authorization");
+//        authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
+//        String usernameAndPassword = new String(Base64.decodeFast(authorization));
+//        String username = usernameAndPassword.split(":")[0];
 
         AccountReq accountReq = new AccountReq();
-        accountReq.setUsername(username);
+        accountReq.setUsername(ThreadLocalUtil.getAttr("username").toString());
         Account account = appContext.getBackendAccountAccess().selectOne(accountReq);
         if(account != null){
             accountReq.setId(account.getId());
