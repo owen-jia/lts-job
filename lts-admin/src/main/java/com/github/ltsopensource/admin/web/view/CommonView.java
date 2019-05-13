@@ -3,10 +3,12 @@ package com.github.ltsopensource.admin.web.view;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Date;
@@ -20,6 +22,12 @@ public class CommonView {
 
     @Autowired
     private BackendAppContext appContext;
+
+    @ModelAttribute
+    public void setModel(Model model){
+        model.addAttribute("authority", ThreadLocalUtil.getAttr("authority"));
+        model.addAttribute("username", ThreadLocalUtil.getAttr("username"));
+    }
 
     @RequestMapping("index")
     public String index(){
@@ -129,5 +137,4 @@ public class CommonView {
         List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
     }
-
 }

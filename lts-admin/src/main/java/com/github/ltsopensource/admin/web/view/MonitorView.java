@@ -6,10 +6,12 @@ import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.json.JSON;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
@@ -22,6 +24,12 @@ public class MonitorView {
 
     @Autowired
     private BackendAppContext appContext;
+
+    @ModelAttribute
+    public void setModel(Model model){
+        model.addAttribute("authority", ThreadLocalUtil.getAttr("authority"));
+        model.addAttribute("username", ThreadLocalUtil.getAttr("username"));
+    }
 
     @RequestMapping("monitor/jobtracker-monitor")
     public String jobTrackerMonitor(Model model) {
@@ -38,7 +46,6 @@ public class MonitorView {
     public String taskTrackerMonitor(Model model) {
 
         initTimeRange(model);
-
         List<NodeGroupPo> nodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         List<NodeInfo> nodeInfos = appContext.getBackendTaskTrackerMAccess().getTaskTrackers();
         setGroupIdMap(model, nodeGroups, nodeInfos);
@@ -84,5 +91,4 @@ public class MonitorView {
         }
         model.addAttribute("groupIdMap", JSON.toJSONString(groupIdMap));
     }
-
 }

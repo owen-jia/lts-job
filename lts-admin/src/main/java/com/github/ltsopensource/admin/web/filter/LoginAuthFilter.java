@@ -7,6 +7,7 @@ import com.github.ltsopensource.admin.support.AppConfigurer;
 import com.github.ltsopensource.admin.web.support.SpringContextHolder;
 import com.github.ltsopensource.core.commons.utils.Base64;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;
@@ -51,6 +52,7 @@ public class LoginAuthFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+        ThreadLocalUtil.setAttr("authority",false);//默认不具备管理员权限
 
         if(appContext == null){
             appContext = SpringContextHolder.getBean(BackendAppContext.class);
@@ -68,6 +70,7 @@ public class LoginAuthFilter implements Filter {
             // Owen Jia at 20190319，修改登陆体系，增加帐户表
             String usernameAndPassword = new String(Base64.decodeFast(authorization));
             String username1 = usernameAndPassword.split(":")[0];
+            ThreadLocalUtil.setAttr("username",username1);//登录名称
 
             if(!username1.equals(username)){
                 //表中账户，非系统管理员
@@ -83,6 +86,7 @@ public class LoginAuthFilter implements Filter {
             } else {
                 if ((username + ":" + password).equals(usernameAndPassword)) {
                     //管理员账户
+                    ThreadLocalUtil.setAttr("authority",true);
                     authenticateSuccess(httpResponse);
                     chain.doFilter(httpRequest, httpResponse);
                 } else {
