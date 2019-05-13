@@ -26,6 +26,6 @@ public class TestJobRunner implements JobRunner {
             LOGGER.info("Run job failed!", e);
             return new Result(Action.EXECUTE_FAILED, e.getMessage());
         }
-        return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
+        return new Result(Action.EXECUTE_SUCCESS, "鎵ц鎴愬姛浜嗭紝鍝堝搱");
     }
 }
