@@ -2,6 +2,9 @@ package com.github.ltsopensource.admin.access.face;
 
 import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.request.AccountReq;
+import com.github.ltsopensource.admin.response.PaginationRsp;
+import com.github.ltsopensource.core.domain.NodeGroupGetReq;
+import com.github.ltsopensource.queue.domain.NodeGroupPo;
 
 import java.util.List;
 
@@ -15,6 +18,12 @@ public interface BackendAccountAccess {
     void insert(List<Account> accounts);
 
     Account selectOne(AccountReq request);
+
+    /**
+     * 分页查询帐号
+     * @return
+     */
+    PaginationRsp<Account> select(AccountReq request);
 
     Long count(AccountReq request);
 

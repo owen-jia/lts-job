@@ -131,6 +131,26 @@ public class CommonView {
         return "authority/modifyPassword";
     }
 
+    /**
+     * 跳转权限中心页面
+     * @return
+     */
+    @RequestMapping("/authority/authority-manage")
+    public String authorityManage(Model model) {
+        setAttr(model);
+        return "authority/authorityManage";
+    }
+
+    /**
+     * 跳转权限中心页面
+     * @return
+     */
+    @RequestMapping("/authority/account-manage")
+    public String accountManage(Model model) {
+        setAttr(model);
+        return "authority/accountManage";
+    }
+
     private void setAttr(Model model) {
         List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);

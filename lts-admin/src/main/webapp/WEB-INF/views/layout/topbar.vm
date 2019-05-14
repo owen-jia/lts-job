@@ -20,9 +20,8 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="#">我的应用</a></li>
+                    #if( !$authority )
                     <li><a href="${contextPath}/authority/modify-password.htm">修改密码</a></li>
-                    #if( $!authority )
-                    <li id="authority"><a href="#">权限配置(管理员)</a></li>
                     #end
                     <li><a href="#">退出</a></li>
                 </ul>
