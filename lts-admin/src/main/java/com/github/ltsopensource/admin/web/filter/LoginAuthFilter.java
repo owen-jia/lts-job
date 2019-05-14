@@ -25,7 +25,7 @@ public class LoginAuthFilter implements Filter {
     private static final String AUTH_PREFIX = "Basic ";
     private AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    private String username = "admin";
+    private static String username = "admin";
 
     private String password = "admin";
 
@@ -77,7 +77,7 @@ public class LoginAuthFilter implements Filter {
                 AccountReq accountReq = new AccountReq();
                 accountReq.setUsername(username1);
                 Account account = appContext.getBackendAccountAccess().selectOne(accountReq);
-                if(usernameAndPassword.equals(account.getUsername() + ":" + account.getPassword())){
+                if(account != null && usernameAndPassword.equals(account.getUsername() + ":" + account.getPassword())){
                     authenticateSuccess(httpResponse);
                     chain.doFilter(httpRequest, httpResponse);
                 } else {
@@ -96,6 +96,10 @@ public class LoginAuthFilter implements Filter {
         } else {
             needAuthenticate(httpRequest, httpResponse);
         }
+    }
+
+    public static String getUsername() {
+        return username;
     }
 
     private boolean isExclude(String path) {

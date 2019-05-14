@@ -5,7 +5,7 @@ package com.github.ltsopensource.admin.request;
  * @author: Owen Jia
  * @time: 2019/3/19 13:42
  */
-public class AccountReq {
+public class AccountReq extends PaginationReq {
     Integer id;
     String username;
     String password;

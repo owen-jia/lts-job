@@ -1,0 +1,210 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>帐号管理（管理员功能）</h2>
+        <ol class="breadcrumb">
+            <li><a>权限中心</a></li>
+            <li class="active"><b>帐号管理</b></li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h3><span class="text-navy">新增帐号</span></h3>
+                </div>
+                <div class="ibox-content">
+                    <form method="post" id="form" class="form-horizontal" onsubmit="return false">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">帐号名</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="username" value=""
+                                       placeholder="保持域账户一致名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">密码<strong style="color: red;">*</strong></label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="password" value=""
+                                       placeholder="输入登录时的密码">
+                            </div>
+
+                            <label class="col-sm-2 control-label">密码确认<strong style="color: red;">*</strong></label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="password2" value=""
+                                       placeholder="两次输入密码必须保持一致">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">邮箱<strong style="color: red;">*</strong></label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="email" value=""
+                                       placeholder="如：****@qq.com">
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-1 col-sm-offset-2" style="width:70px;">
+                                <button class="btn btn-primary" type="button" id="savePass">
+                                    保存
+                                </button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-warning" type="reset" id="resetBtn">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content" id="ltstableContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="ltstable" type="text/html">
+    <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
+        <thead>
+        <tr>
+            <th data-toggle="true">序号</th>
+            <th>帐号名</th>
+            <th>登记邮箱</th>
+            <th>创建时间</th>
+            <th>修改时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each rows as row index}}
+        <tr>
+            <td>{{row.id}}</td>
+            <td>{{row.username}}</td>
+            <td>{{row.email}}</td>
+            <td>{{row.createTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.updateTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.opt | format:'optFormat',row}}</td>
+        </tr>
+        {{/each}}
+        {{if results == 0}}
+        <tr>
+            <td colspan="4">暂无数据</td>
+        </tr>
+        {{/if}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
+                <ul class="pagination-sm pull-right"></ul>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+<script>
+    $(document).ready(function () {
+        LTS.colFormatter.optFormat = function (v, row) {
+            return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.id + '" nodeType="' + row.username + '">' +
+                    '<span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
+        }
+
+        var ltsTable = $("#ltstableContainer").ltsTable({
+            url: '../api/safe/accounts-list.do',
+            templateId: 'ltstable'
+        });
+
+        ltsTable.post({}, 1);
+
+        $(document).on("click", ".node-group-del-btn", function () {
+            var nodeGroup = $(this).attr("nodeGroup");
+            var nodeType = $(this).attr("nodeType");
+            var _this = $(this);
+
+            swal({
+                title: "确认要删除该账户吗？",
+                text: "帐号：" + nodeType + " 请谨慎操作 !",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确认删除",
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if(isConfirm){
+                    $.ajax({
+                        url: '../api/safe/account-delete.do',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {id: nodeGroup, username: nodeType},
+                        success: function (json) {
+                            if (json && json.success) {
+                                swal("删除成功!", "恭喜你", "success");
+                                _this.parents("tr").remove();
+                            } else {
+                                json ? swal(json['msg']) : {};
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on("click", "#savePass", function () {
+            var params = {};
+            $.each($('#form').parent().find(".form-control"), function () {
+                var name = $(this).attr("name");
+                var value = $(this).val().trim();
+                params[name] = value;
+            });
+            if (!params['username']) {
+                sweetAlert("警告", "帐号名，必填", "error");
+                return;
+            }
+            if (!params['password']) {
+                sweetAlert("警告", "密码，必填", "error");
+                return;
+            }
+            if (!params['password2'] || params['password'] != params['password2']) {
+                sweetAlert("警告", "两次密码必须相同", "error");
+                return;
+            }
+            if (!params['email']) {
+                sweetAlert("警告", "邮箱，必填", "error");
+                return;
+            }
+
+            $.ajax({
+                url: '../api/safe/account-add.do',
+                type: 'POST',
+                dataType: 'json',
+                data: params,
+                success: function (json) {
+                    if (json && json.success) {
+                        swal('新帐号添加成功');
+                        ltsTable.post({}, 1);
+                        $("#resetBtn").trigger("click");
+                    } else {
+                        if (json) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>

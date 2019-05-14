@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>修改密码</h2>
+        <h2>权限配置</h2>
         <ol class="breadcrumb">
-            <li><a>管理员</a></li>
-            <li class="active"><b>修改密码</b></li>
+            <li><a>权限中心</a></li>
+            <li class="active"><b>权限配置</b></li>
         </ol>
     </div>
 </div>
@@ -13,7 +13,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">修改密码（非管理员）</span></h3>
+                    <h3><span class="text-navy">权限配置（管理员）</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">
@@ -80,32 +80,58 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-content">
-                    1、管理员帐号和密码是配置在安装文件中，不允许再这里修改；</br>
-                    2、非管理员的密码修改成功后需要重新登陆；
+                    1、管理员分配普通用户对节点的操作权限</br>
+                    帐号配置对jobClient & taskTracker的配置权限。
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script id="ltstable" type="text/html">
+    <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
+        <thead>
+        <tr>
+            <th data-toggle="true">序号</th>
+            <th>帐号名</th>
+            <th>登记邮箱</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each rows as row index}}
+        <tr>
+            <td>{{row.nodeType}}</td>
+            <td>{{row.name}}</td>
+            <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.opt | format:'optFormat',row}}</td>
+        </tr>
+        {{/each}}
+        {{if results == 0}}
+        <tr>
+            <td colspan="4">暂无数据</td>
+        </tr>
+        {{/if}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
+                <ul class="pagination-sm pull-right"></ul>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
 <script>
     $(document).ready(function () {
-        var init = function () {
-            $.ajax({
-                url: '../api/safe/account-get.do',
-                type: 'POST',
-                dataType: 'json',
-                data: {},
-                success: function (json) {
-                    if (json && json.success) {
-                        var account = json.rows[0];
-                        $("input[name='id']").val(account.id);
-                        $("input[name='username']").val(account.username);
-                    }
-                }
-            });
-        }
-        init();
+
+        var ltsTable = $("#ltstableContainer").ltsTable({
+            url: 'api/node/node-group-get',
+            templateId: 'ltstable'
+        });
 
         $(document).on("click", "#resetBtn", function () {
             $("input[name='oldPassword']").val("");

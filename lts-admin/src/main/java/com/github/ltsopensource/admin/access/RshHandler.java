@@ -66,6 +66,18 @@ public class RshHandler {
         }
     };
 
+    public static final ResultSetHandler<List<Account>> ACCOUNT_LIST_RSH = new ResultSetHandler<List<Account>>() {
+        @Override
+        public List<Account> handle(ResultSet rs) throws SQLException {
+
+            List<Account> list = new ArrayList<Account>();
+            while (rs.next()){
+                list.add(getAccount(rs));
+            }
+            return list;
+        }
+    };
+
     private static Account getAccount(final ResultSet rs) throws SQLException{
         Account account = new Account();
         account.setId(rs.getInt("id"));

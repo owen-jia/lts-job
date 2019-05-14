@@ -2,18 +2,20 @@ package com.github.ltsopensource.admin.access.mysql;
 
 import com.github.ltsopensource.admin.access.RshHandler;
 import com.github.ltsopensource.admin.access.domain.Account;
+import com.github.ltsopensource.admin.access.domain.NodeOnOfflineLog;
 import com.github.ltsopensource.admin.access.face.BackendAccountAccess;
 import com.github.ltsopensource.admin.request.AccountReq;
+import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.monitor.access.mysql.MysqlAbstractJdbcAccess;
+import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import com.github.ltsopensource.queue.mysql.MysqlPreLoader;
-import com.github.ltsopensource.store.jdbc.builder.SelectSql;
-import com.github.ltsopensource.store.jdbc.builder.UpdateSql;
-import com.github.ltsopensource.store.jdbc.builder.WhereSql;
+import com.github.ltsopensource.store.jdbc.builder.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,8 +35,20 @@ public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implement
     }
 
     @Override
-    public void insert(List<Account> nodeOnOfflineLogs) {
+    public void insert(List<Account> accounts) {
+        InsertSql insertSql = new InsertSql(getSqlTemplate())
+                .insert(getTableName())
+                .columns("username",
+                        "password",
+                        "email");
 
+        for (Account account : accounts) {
+            insertSql.values(account.getUsername(),
+                    account.getPassword(),
+                    account.getEmail()
+            );
+        }
+        insertSql.doBatchInsert();
     }
 
     @Override
@@ -50,12 +64,47 @@ public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implement
 
     @Override
     public Long count(AccountReq request) {
-        return null;
+        return new SelectSql(getSqlTemplate())
+                .select()
+                .columns("count(1)")
+                .from()
+                .table(getTableName())
+                .single();
+    }
+
+    @Override
+    public PaginationRsp<Account> select(AccountReq request) {
+        PaginationRsp<Account> response = new PaginationRsp<Account>();
+        Long results = new SelectSql(getSqlTemplate())
+                .select()
+                .columns("count(1)")
+                .from()
+                .table(getTableName())
+                .single();
+
+        List<Account> accounts = new SelectSql(getSqlTemplate())
+                .select()
+                .all()
+                .from()
+                .table(getTableName())
+                .orderBy()
+                .column("update_time", OrderByType.DESC)
+                .limit(request.getStart(), request.getLimit())
+                .list(RshHandler.ACCOUNT_LIST_RSH);
+
+        response.setResults(results.intValue());
+        response.setRows(accounts == null? new ArrayList<Account>(): accounts);
+        return response;
     }
 
     @Override
     public void delete(AccountReq request) {
-
+        new DeleteSql(getSqlTemplate())
+                .delete()
+                .from()
+                .table(getTableName())
+                .whereSql(buildWhereSql(request))
+                .doDelete();
     }
 
     public WhereSql buildWhereSql(AccountReq request) {
