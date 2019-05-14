@@ -77,7 +77,7 @@ public class LoginAuthFilter implements Filter {
                 AccountReq accountReq = new AccountReq();
                 accountReq.setUsername(username1);
                 Account account = appContext.getBackendAccountAccess().selectOne(accountReq);
-                if(usernameAndPassword.equals(account.getUsername() + ":" + account.getPassword())){
+                if(account != null && usernameAndPassword.equals(account.getUsername() + ":" + account.getPassword())){
                     authenticateSuccess(httpResponse);
                     chain.doFilter(httpRequest, httpResponse);
                 } else {
