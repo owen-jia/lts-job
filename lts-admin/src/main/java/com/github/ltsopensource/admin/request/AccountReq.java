@@ -11,6 +11,7 @@ public class AccountReq extends PaginationReq {
     String password;
     String oldPassword;
     String email;
+    String searchKeys;
 
     public String getUsername() {
         return username;
@@ -52,6 +53,14 @@ public class AccountReq extends PaginationReq {
         this.email = email;
     }
 
+    public String getSearchKeys() {
+        return searchKeys;
+    }
+
+    public void setSearchKeys(String searchKeys) {
+        this.searchKeys = searchKeys;
+    }
+
     @Override
     public String toString() {
         return "AccountReq{" +
@@ -60,6 +69,7 @@ public class AccountReq extends PaginationReq {
                 ", password='" + password + '\'' +
                 ", oldPassword='" + oldPassword + '\'' +
                 ", email='" + email + '\'' +
+                ", searchKeys='" + searchKeys + '\'' +
                 '}';
     }
 }

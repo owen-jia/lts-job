@@ -2,8 +2,8 @@
     <div class="col-lg-12">
         <h2>权限配置</h2>
         <ol class="breadcrumb">
-            <li><a>权限中心</a></li>
-            <li class="active"><b>权限配置</b></li>
+            <li><a>我是管理员</a></li>
+            <li class="active"><b>权限分配（taskTracker）</b></li>
         </ol>
     </div>
 </div>
@@ -13,61 +13,31 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">权限配置（管理员）</span></h3>
+                    <h3><span class="text-navy">查找帐号</span></h3>
                 </div>
                 <div class="ibox-content">
-                    <form method="post" id="form" class="form-horizontal" onsubmit="return false">
-                        <div class="form-group" style="display:none;">
-                            <label class="col-sm-2 control-label">ID</label>
+                    <form method="post" class="form-horizontal" onsubmit="return false">
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">关键词</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="realTaskId" value=""
+                                       placeholder="帐号名或者邮箱" disabled>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button class="btn btn-primary" type="button" id="searchBtn">
+                                    搜索
+                                </button>
+                            </div>
 
                             <div class="col-sm-4">
-                                <input type="text" class="form-control" name="id" hidden="hidden"
-                                       placeholder="" disabled>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">用户名</label>
-
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="username" value="$username"
-                                       placeholder="" disabled>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">原密码<strong style="color: red;">*</strong></label>
-
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="oldPassword" value=""
-                                       placeholder="输入登录时的密码">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">新密码<strong style="color: red;">*</strong></label>
-
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="password" value=""
-                                       placeholder="建议长度大于6位">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">确认新密码<strong style="color: red;">*</strong></label>
-
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" name="password2" value=""
-                                       placeholder="请输入与上面同样的密码">
-                            </div>
-                        </div>
-                        <div class="hr-line-dashed"></div>
-                        <div class="form-group">
-                            <div class="col-sm-1 col-sm-offset-2" style="width:70px;">
-                                <button class="btn btn-primary" type="button" id="savePass">
-                                    保存
-                                </button>
-                            </div>
-                            <div class="col-sm-1">
-                                <button class="btn btn-warning" type="button" id="resetBtn">
-                                    重置
-                                </button>
+                                <select class="form-control selectpicker" id="taskTrackerNodeGroup">
+                                    <option value="">--- 无 ---</option>
+                                    #foreach ($acc in $!accounts)
+                                         <option value="$acc.id">${acc.username} - ${acc.email}</option>
+                                    #end
+                                </select>
                             </div>
                         </div>
                     </form>
@@ -77,25 +47,45 @@
     </div>
 
     <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h3><span class="text-navy">已拥有权限执行节点</span></h3>
+                </div>
+                <div class="ibox-content" id="ltstableContainer">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h3><span class="text-navy">所有执行节点：taskTracker</span></h3>
+                </div>
+                <div class="ibox-content" id="ltstableContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-content">
-                    1、管理员分配普通用户对节点的操作权限</br>
-                    帐号配置对jobClient & taskTracker的配置权限。
+                    1、管理员分配普通用户对执行节点的操作权限。</br>
+                    2、目前只支持到执行节点 taskTracker 的配置权限。
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script id="ltstable" type="text/html">
+<script id="ltstable-have" type="text/html">
     <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
         <thead>
         <tr>
-            <th data-toggle="true">序号</th>
-            <th>帐号名</th>
-            <th>登记邮箱</th>
-            <th>创建时间</th>
+            <th data-toggle="true">节点类型</th>
+            <th>节点组名</th>
+            <th>节点组创建时间</th>
             <th>操作</th>
         </tr>
         </thead>
@@ -133,10 +123,9 @@
             templateId: 'ltstable'
         });
 
-        $(document).on("click", "#resetBtn", function () {
-            $("input[name='oldPassword']").val("");
-            $("input[name='password']").val("");
-            $("input[name='password2']").val("");
+        $(document).on("change", "#taskTrackerNodeGroup", function () {
+            var acountId = $("select[id='taskTrackerNodeGroup']").val();
+            console.log(acountId);
         });
 
         $(document).on("click", "#savePass", function () {

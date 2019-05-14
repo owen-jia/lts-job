@@ -80,8 +80,9 @@ public class SafeAuthorityApi extends AbstractMVC {
         AccountReq accountReq = new AccountReq();
         accountReq.setUsername(ThreadLocalUtil.getAttr("username").toString());
         PaginationRsp<Account> accounts = appContext.getBackendAccountAccess().select(request);
-        for(Account account: accounts.getRows()){
-            account.setPassword("***");
+
+        for(Account account : accounts.getRows()){
+            account.setPassword("******");
         }
         RestfulResponse response = new RestfulResponse();
         response.setSuccess(true);
@@ -120,6 +121,20 @@ public class SafeAuthorityApi extends AbstractMVC {
         //依托于id、username 进行删除，这两个在库表中都是唯一的
         appContext.getBackendAccountAccess().insert(Collections.singletonList(account));
         return Builder.build(true);
+    }
+
+    @RequestMapping("/safe/account/search")
+    public RestfulResponse searchAccount(AccountReq request){
+//        if(!isAdminAuthoriy()){
+//            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
+//        }
+
+        List<Account> accounts = appContext.getBackendAccountAccess().searchAll(request);
+        RestfulResponse response = new RestfulResponse();
+        response.setSuccess(true);
+        response.setResults(accounts.size());
+        response.setRows(accounts);
+        return response;
     }
 
     /**

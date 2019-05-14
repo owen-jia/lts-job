@@ -14,7 +14,10 @@ import com.github.ltsopensource.monitor.access.mysql.MysqlAbstractJdbcAccess;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import com.github.ltsopensource.queue.mysql.MysqlPreLoader;
 import com.github.ltsopensource.store.jdbc.builder.*;
+import com.github.ltsopensource.store.jdbc.dbutils.ResultSetHandler;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +73,32 @@ public class MysqlBackendAccountAccess extends MysqlAbstractJdbcAccess implement
                 .from()
                 .table(getTableName())
                 .single();
+    }
+
+    @Override
+    public List<Account> searchAll(AccountReq request) {
+        return new SelectSql(getSqlTemplate())
+                .select()
+                .columns("id","username","email")
+                .from()
+                .table(getTableName())
+                .whereSql(new WhereSql()
+                        .andOnNotNull("email like %?%", request.getSearchKeys())
+                        .orOnNotNull("username like %?%", request.getSearchKeys()))
+                .list(new ResultSetHandler<List<Account>>() {
+                    @Override
+                    public List<Account> handle(ResultSet rs) throws SQLException {
+                        List<Account> list = new ArrayList<Account>();
+                        while (rs.next()){
+                            Account account = new Account();
+                            account.setId(rs.getInt("id"));
+                            account.setUsername(rs.getString("username"));
+                            account.setEmail(rs.getString("email"));
+                            list.add(account);
+                        }
+                        return list;
+                    }
+                });
     }
 
     @Override

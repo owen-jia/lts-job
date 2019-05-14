@@ -25,6 +25,13 @@ public interface BackendAccountAccess {
      */
     PaginationRsp<Account> select(AccountReq request);
 
+    /**
+     * 关键字搜索
+     * @param request
+     * @return
+     */
+    List<Account> searchAll(AccountReq request);
+
     Long count(AccountReq request);
 
     void delete(AccountReq request);
