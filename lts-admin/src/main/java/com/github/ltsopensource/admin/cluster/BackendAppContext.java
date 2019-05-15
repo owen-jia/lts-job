@@ -31,6 +31,7 @@ public class BackendAppContext extends AppContext {
     private BackendJVMThreadAccess backendJVMThreadAccess;
     private BackendNodeOnOfflineLogAccess backendNodeOnOfflineLogAccess;
     private BackendAccountAccess backendAccountAccess;//Owen Jia at 20190319
+    private BackendAccountNodeAccess backendAccountNodeAccess;//Owen Jia at 20190515
 
     private NodeMemCacheAccess nodeMemCacheAccess;
 
@@ -196,5 +197,13 @@ public class BackendAppContext extends AppContext {
 
     public void setBackendAccountAccess(BackendAccountAccess backendAccountAccess) {
         this.backendAccountAccess = backendAccountAccess;
+    }
+
+    public BackendAccountNodeAccess getBackendAccountNodeAccess() {
+        return backendAccountNodeAccess;
+    }
+
+    public void setBackendAccountNodeAccess(BackendAccountNodeAccess backendAccountNodeAccess) {
+        this.backendAccountNodeAccess = backendAccountNodeAccess;
     }
 }

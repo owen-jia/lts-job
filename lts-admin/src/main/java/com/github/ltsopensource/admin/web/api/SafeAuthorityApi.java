@@ -1,7 +1,9 @@
 package com.github.ltsopensource.admin.web.api;
 
 import com.github.ltsopensource.admin.access.domain.Account;
+import com.github.ltsopensource.admin.access.domain.AccountNode;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
+import com.github.ltsopensource.admin.request.AccountNodeReq;
 import com.github.ltsopensource.admin.request.AccountReq;
 import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.admin.support.AppConfigurer;
@@ -10,8 +12,10 @@ import com.github.ltsopensource.admin.web.AbstractMVC;
 import com.github.ltsopensource.admin.web.filter.LoginAuthFilter;
 import com.github.ltsopensource.admin.web.support.Builder;
 import com.github.ltsopensource.admin.web.vo.RestfulResponse;
+import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
+import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import javafx.scene.control.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -125,9 +129,9 @@ public class SafeAuthorityApi extends AbstractMVC {
 
     @RequestMapping("/safe/account/search")
     public RestfulResponse searchAccount(AccountReq request){
-//        if(!isAdminAuthoriy()){
-//            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
-//        }
+        if(!isAdminAuthoriy()){
+            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
+        }
 
         List<Account> accounts = appContext.getBackendAccountAccess().searchAll(request);
         RestfulResponse response = new RestfulResponse();
@@ -145,6 +149,74 @@ public class SafeAuthorityApi extends AbstractMVC {
         String loginName = ThreadLocalUtil.getAttr("username").toString();
         String defaultUsername = AppConfigurer.getProperty("console.username", LoginAuthFilter.getUsername());
         return defaultUsername.equals(loginName);
+    }
+
+    /**
+     * 查询用户具有的NodeGroup列表
+     * @param request
+     * @return
+     */
+    @RequestMapping("/safe/account/node-get")
+    public RestfulResponse queryNodes(AccountNodeReq request){
+        if(!isAdminAuthoriy()){
+            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
+        }
+        if(request.getUserId() <= 0){
+            return Builder.build(false,"userId 不合法");
+        }
+
+        request.setId(null);
+        request.setNodeType(null);
+        request.setNodeGroup(null);
+        PaginationRsp<AccountNode> accountNodes = appContext.getBackendAccountNodeAccess().select(request);
+        RestfulResponse response = new RestfulResponse();
+        response.setSuccess(true);
+        response.setResults(accountNodes.getResults());
+        response.setRows(accountNodes.getRows());
+        return response;
+    }
+
+    @RequestMapping("/safe/account/node-add")
+    public RestfulResponse accountNodeAdd(AccountNodeReq req){
+        if(!isAdminAuthoriy()){
+            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
+        }
+        if(req.getUserId() == null || req.getUserId() <= 0 || req.getNodeGroup() == null || req.getNodeGroup().isEmpty()|| req.getNodeType() == null)
+            return Builder.build(false,"参数不合法，userId&nodeType&nodeGroup");
+
+        AccountNode account = appContext.getBackendAccountNodeAccess().selectOne(req);
+        if(account.getUserId() == req.getUserId() && account.getNodeType() == req.getNodeType() && account.getNodeGroup().equals(req.getNodeGroup())){
+            LOGGER.warn("该用户节点权限已配置：{}",req.toString());
+        } else {
+            AccountNode accountNode = new AccountNode();
+            accountNode.setUserId(req.getUserId());
+            accountNode.setNodeGroup(req.getNodeGroup());
+            accountNode.setNodeType(req.getNodeType());
+            appContext.getBackendAccountNodeAccess().insert(Collections.singletonList(accountNode));
+        }
+        return Builder.build(true);
+    }
+
+    @RequestMapping("/safe/account/node-delete")
+    public RestfulResponse accountNodeDelete(AccountNodeReq req){
+        if(!isAdminAuthoriy()){
+            return Builder.build(false,"非管理员帐号登陆，禁止操作！");
+        }
+        if(req.getId() == null || req.getId() <= 0)
+            return Builder.build(false,"参数id不合法");
+
+        req.setNodeType(null);
+        req.setNodeGroup(null);
+        appContext.getBackendAccountNodeAccess().delete(req);
+        return Builder.build(true, "删除成功");
+    }
+
+    @RequestMapping("/safe/node/all-get")
+    public RestfulResponse queryNodeGroup(){
+        List<NodeGroupPo> nodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
+        nodeGroups.addAll(appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER));
+
+        return null;
     }
 
 }

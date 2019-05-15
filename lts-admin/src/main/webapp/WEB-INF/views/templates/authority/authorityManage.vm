@@ -47,21 +47,32 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">已拥有权限执行节点</span></h3>
+                    <h3><span class="text-navy">已拥有权限</span></h3>
                 </div>
-                <div class="ibox-content" id="ltstableContainer">
+                <div class="ibox-content" id="ltstableContainer-have">
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">所有执行节点：taskTracker</span></h3>
+                    <div class="form-group row">
+                        <h3>
+                            <span class="text-navy">所有节点</span>
+                        </h3>
+                        <div class="col-sm-3">
+                            <select name="nodeType" class="form-control">
+                                <option value="">所有</option>
+                                <option value="JOB_CLIENT">JOB_CLIENT</option>
+                                <option value="TASK_TRACKER">TASK_TRACKER</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="ibox-content" id="ltstableContainer">
+                <div class="ibox-content" id="ltstableContainer-all">
                 </div>
             </div>
         </div>
@@ -93,9 +104,41 @@
         {{each rows as row index}}
         <tr>
             <td>{{row.nodeType}}</td>
-            <td>{{row.name}}</td>
-            <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.nodeGroup}}</td>
+            <td>{{row.createTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.opt | format:'optFormat',row}}</td>
+        </tr>
+        {{/each}}
+        {{if results == 0}}
+        <tr>
+            <td colspan="4">暂无数据</td>
+        </tr>
+        {{/if}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4">
+                <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
+                <ul class="pagination-sm pull-right"></ul>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+<script id="ltstable-all" type="text/html">
+    <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
+        <thead>
+        <tr>
+            <th data-toggle="true">节点组名</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each rows as row index}}
+        <tr>
+            <td>{{row.name}}</td>
+            <td>{{row.opt | format:'optFormatAdd',row}}</td>
         </tr>
         {{/each}}
         {{if results == 0}}
@@ -118,10 +161,28 @@
 <script>
     $(document).ready(function () {
 
-        var ltsTable = $("#ltstableContainer").ltsTable({
-            url: 'api/node/node-group-get',
-            templateId: 'ltstable'
+        LTS.colFormatter.optFormat = function (v, row) {
+            return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.id + '" nodeType="' + row.username + '">' +
+                    '<span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删</span></a>';
+        }
+        var ltsTable = $("#ltstableContainer-have").ltsTable({
+            url: '../api/safe/account/node-get',
+            templateId: 'ltstable-have'
         });
+        ltsTable.post({'userId':1},1);
+
+
+        LTS.colFormatter.optFormatAdd = function (v, row) {
+            return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.id + '" nodeType="' + row.username + '">' +
+                    '<span class="label label-primary" style="background-color: green;"><i class="fa fa-trash-o"></i> 加</span></a>';
+        }
+        var ltsTableAll = $("#ltstableContainer-all").ltsTable({
+            url: '../api/node/node-group-get',
+            templateId: 'ltstable-all'
+        });
+        ltsTableAll.post({'nodeType':"TASK_TRACKER"},1);
+
+        // --------------------------------------------------------
 
         $(document).on("change", "#taskTrackerNodeGroup", function () {
             var acountId = $("select[id='taskTrackerNodeGroup']").val();

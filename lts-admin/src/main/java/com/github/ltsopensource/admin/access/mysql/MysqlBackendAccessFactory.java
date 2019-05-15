@@ -39,6 +39,11 @@ public class MysqlBackendAccessFactory implements BackendAccessFactory {
     }
 
     @Override
+    public BackendAccountNodeAccess getBackendAccountNodeAccess(Config config) {
+        return new MysqlBackendAccountNodeAccess(config);
+    }
+
+    @Override
     public BackendAccountAccess getBackendAccountAccess(Config config) {
         return new MysqlBackendAccountAccess(config);
     }
