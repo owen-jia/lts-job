@@ -103,6 +103,11 @@ public class SafeAuthorityApi extends AbstractMVC {
 
         //依托于id、username 进行删除，这两个在库表中都是唯一的
         appContext.getBackendAccountAccess().delete(request);
+
+        //清空帐号权限配置
+        AccountNodeReq accountNodeReq = new AccountNodeReq();
+        accountNodeReq.setUserId(request.getId());
+        appContext.getBackendAccountNodeAccess().delete(accountNodeReq);
         return Builder.build(true);
     }
 
@@ -185,8 +190,9 @@ public class SafeAuthorityApi extends AbstractMVC {
             return Builder.build(false,"参数不合法，userId&nodeType&nodeGroup");
 
         AccountNode account = appContext.getBackendAccountNodeAccess().selectOne(req);
-        if(account.getUserId() == req.getUserId() && account.getNodeType() == req.getNodeType() && account.getNodeGroup().equals(req.getNodeGroup())){
+        if(account != null && account.getUserId().equals(req.getUserId())){
             LOGGER.warn("该用户节点权限已配置：{}",req.toString());
+            return Builder.build(false,"已拥有该节点权限");
         } else {
             AccountNode accountNode = new AccountNode();
             accountNode.setUserId(req.getUserId());

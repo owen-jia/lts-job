@@ -84,6 +84,7 @@ public class MysqlBackendAccountNodeAccess extends MysqlAbstractJdbcAccess imple
                 .columns("count(1)")
                 .from()
                 .table(getTableName())
+                .whereSql(new WhereSql().orOnNotNull("userId=?", request.getUserId()))
                 .single();
 
         List<AccountNode> accounts = new SelectSql(getSqlTemplate())
@@ -91,6 +92,7 @@ public class MysqlBackendAccountNodeAccess extends MysqlAbstractJdbcAccess imple
                 .all()
                 .from()
                 .table(getTableName())
+                .whereSql(new WhereSql().orOnNotNull("userId=?", request.getUserId()))
                 .orderBy()
                 .column("create_time", OrderByType.DESC)
                 .limit(request.getStart(), request.getLimit())
@@ -115,6 +117,7 @@ public class MysqlBackendAccountNodeAccess extends MysqlAbstractJdbcAccess imple
         return new WhereSql()
                 .andOnNotNull("id=?", request.getId())
                 .andOnNotNull("userId=?", request.getUserId())
-                .andOnNotNull("node_type = ?", request.getNodeType() == null?null:request.getNodeType().name());
+                .andOnNotNull("node_type = ?", request.getNodeType() == null?null:request.getNodeType().name())
+                .andOnNotNull("node_group = ?", request.getNodeGroup());
     }
 }

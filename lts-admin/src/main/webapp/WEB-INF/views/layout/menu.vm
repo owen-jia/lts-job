@@ -49,7 +49,7 @@
             </li>
             #if( $!authority )
             <li>
-                <a href="#"><i class="fa fa-venus"></i> <span class="nav-label">我是管理员</span><span class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-adn"></i> <span class="nav-label">我是管理员</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
                     <li><a href="${contextPath}/authority/authority-manage.htm">权限分配</a></li>
                     <li><a href="${contextPath}/authority/account-manage.htm">帐号管理</a></li>

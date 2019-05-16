@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>权限配置</h2>
+        <h2>权限配置：JobClient&TaskTracker</h2>
         <ol class="breadcrumb">
             <li><a>我是管理员</a></li>
-            <li class="active"><b>权限分配（taskTracker）</b></li>
+            <li class="active"><b>权限分配</b></li>
         </ol>
     </div>
 </div>
@@ -32,8 +32,8 @@
                             </div>
 
                             <div class="col-sm-4">
-                                <select class="form-control selectpicker" id="taskTrackerNodeGroup">
-                                    <option value="">--- 无 ---</option>
+                                <select class="form-control selectpicker" id="accountSelected">
+                                    <option value="0">--- 无 ---</option>
                                     #foreach ($acc in $!accounts)
                                          <option value="$acc.id">${acc.username} - ${acc.email}</option>
                                     #end
@@ -60,13 +60,12 @@
             <div class="ibox">
                 <div class="ibox-title">
                     <div class="form-group row">
-                        <h3>
-                            <span class="text-navy">所有节点</span>
-                        </h3>
                         <div class="col-sm-3">
-                            <select name="nodeType" class="form-control">
-                                <option value="">所有</option>
-                                <option value="JOB_CLIENT">JOB_CLIENT</option>
+                            <h3><span class="text-navy">所有节点</span></h3>
+                        </div>
+                        <div class="col-sm-5">
+                            <select id="nodeType" class="form-control">
+                                <option value="JOB_CLIENT" selected>JOB_CLIENT</option>
                                 <option value="TASK_TRACKER">TASK_TRACKER</option>
                             </select>
                         </div>
@@ -160,69 +159,89 @@
 
 <script>
     $(document).ready(function () {
-
+        //已拥有权限节点列表
+        var accountId = 0;
         LTS.colFormatter.optFormat = function (v, row) {
-            return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.id + '" nodeType="' + row.username + '">' +
+            return '<a href="javascript:;" class="node-group-del-btn" id="' + row.id + '" nodeGroup="' + row.nodeGroup + '">' +
                     '<span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删</span></a>';
         }
         var ltsTable = $("#ltstableContainer-have").ltsTable({
             url: '../api/safe/account/node-get',
             templateId: 'ltstable-have'
         });
-        ltsTable.post({'userId':1},1);
-
-
+        $(document).on("change", "#accountSelected", function () {
+            accountId = $("select[id='accountSelected']").val();
+            if(accountId > 0){
+                ltsTable.post({'userId': new Number(accountId)},1);
+            }
+        });
+        //所有节点列表
+        var nodeGroups = {'nodeType':"JOB_CLIENT"};
         LTS.colFormatter.optFormatAdd = function (v, row) {
-            return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.id + '" nodeType="' + row.username + '">' +
-                    '<span class="label label-primary" style="background-color: green;"><i class="fa fa-trash-o"></i> 加</span></a>';
+            return '<a href="javascript:;" class="node-group-add-btn" nodeGroup="' + row.name + '" nodeType="' + row.nodeType + '">' +
+                    '<span class="label label-primary" style="background-color: green;"><i class="fa fa-caret-left"></i> 加</span></a>';
         }
         var ltsTableAll = $("#ltstableContainer-all").ltsTable({
             url: '../api/node/node-group-get',
             templateId: 'ltstable-all'
         });
-        ltsTableAll.post({'nodeType':"TASK_TRACKER"},1);
-
-        // --------------------------------------------------------
-
-        $(document).on("change", "#taskTrackerNodeGroup", function () {
-            var acountId = $("select[id='taskTrackerNodeGroup']").val();
-            console.log(acountId);
+        ltsTableAll.post(nodeGroups,1);
+        $(document).on("change", "#nodeType", function () {
+            var nodeType = $("select[id='nodeType']").val();
+            nodeGroups = {'nodeType': nodeType};
+            ltsTableAll.post(nodeGroups,1);
         });
 
-        $(document).on("click", "#savePass", function () {
-            var params = {};
-            $.each($('#form').parent().find(".form-control"), function () {
-                var name = $(this).attr("name");
-                var value = $(this).val().trim();
-                params[name] = value;
-            });
+        // --------------------------------------------------------
+        $(document).on("click", ".node-group-del-btn", function () {
+            var _id = $(this).attr("id");
+            var nodeGroup = $(this).attr("nodeGroup");
+            var _this = $(this);
 
-            if (!params['oldPassword']) {
-                sweetAlert("警告", "原密码，必填", "error");
-                return;
-            }
-            if (!params['password']) {
-                sweetAlert("警告", "新密码，必填", "error");
-                return;
-            }
-            if (!params['password2'] || params['password'] != params['password2']) {
-                sweetAlert("警告", "新密码必须相同", "error");
-                return;
-            }
+            swal({
+                title: "确认要删除该节点权限吗？",
+                text: '节点:'+nodeGroup+',请谨慎操作 !',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确认删除",
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if(isConfirm){
+                    $.ajax({
+                        url: '../api/safe/account/node-delete.do',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {id: _id},
+                        success: function (json) {
+                            if (json && json.success) {
+                                swal("删除成功!", "恭喜你", "success");
+                                _this.parents("tr").remove();
+                            } else {
+                                json ? swal(json['msg']) : {};
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on("click", ".node-group-add-btn", function () {
+            var nodeGroup = $(this).attr("nodeGroup");
+            var nodeType = $(this).attr("nodeType");
+            var _this = $(this);
 
             $.ajax({
-                url: '../api/safe/modify-password.do',
+                url: '../api/safe/account/node-add.do',
                 type: 'POST',
                 dataType: 'json',
-                data: params,
+                data: {"nodeGroup": nodeGroup, "nodeType": nodeGroups.nodeType, "userId": accountId},
                 success: function (json) {
                     if (json && json.success) {
-                        swal('密码修改成功');
-                        $("#resetBtn").trigger("click");
+                        swal("权限添加成功!", "恭喜你", "success");
+                        ltsTable.post({'userId': accountId},1)
                     } else {
-                        if (json) {
-                            swal(json['msg']);
-                        }
+                        json ? swal(json['msg']) : {};
                     }
                 }
             });
