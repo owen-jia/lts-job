@@ -59,6 +59,8 @@ public class NodeApi extends AbstractMVC {
         NodeGroupGetReq nodeGroupGetReq = new NodeGroupGetReq();
         nodeGroupGetReq.setNodeGroup(request.getNodeGroup());
         nodeGroupGetReq.setNodeType(request.getNodeType());
+        nodeGroupGetReq.setStart(request.getStart());
+        nodeGroupGetReq.setLimit(request.getLimit());
         PaginationRsp<NodeGroupPo> paginationRsp = appContext.getNodeGroupStore().getNodeGroup(nodeGroupGetReq);
 
         response.setResults(paginationRsp.getResults());

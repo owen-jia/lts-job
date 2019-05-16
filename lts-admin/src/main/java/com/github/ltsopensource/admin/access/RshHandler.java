@@ -1,6 +1,7 @@
 package com.github.ltsopensource.admin.access;
 
 import com.github.ltsopensource.admin.access.domain.Account;
+import com.github.ltsopensource.admin.access.domain.AccountNode;
 import com.github.ltsopensource.admin.access.domain.NodeOnOfflineLog;
 import com.github.ltsopensource.admin.web.vo.NodeInfo;
 import com.github.ltsopensource.core.cluster.Node;
@@ -84,8 +85,40 @@ public class RshHandler {
         account.setUsername(rs.getString("username"));
         account.setPassword(rs.getString("password"));
         account.setEmail(rs.getString("email"));
-        account.setCreateTime(rs.getDate("create_time"));
+        account.setCreateTime(rs.getTimestamp("create_time"));
         account.setUpdateTime(rs.getTimestamp("update_time"));
+        return account;
+    }
+
+    public static final ResultSetHandler<AccountNode> ACCOUNT_NODE_RSH = new ResultSetHandler<AccountNode>() {
+        @Override
+        public AccountNode handle(ResultSet rs) throws SQLException {
+            if(!rs.next()){
+                return null;
+            }
+            return getAccountNode(rs);
+        }
+    };
+
+    public static final ResultSetHandler<List<AccountNode>> ACCOUNT_NODE_LIST_RSH = new ResultSetHandler<List<AccountNode>>() {
+        @Override
+        public List<AccountNode> handle(ResultSet rs) throws SQLException {
+
+            List<AccountNode> list = new ArrayList<AccountNode>();
+            while (rs.next()){
+                list.add(getAccountNode(rs));
+            }
+            return list;
+        }
+    };
+
+    private static AccountNode getAccountNode(final ResultSet rs) throws SQLException{
+        AccountNode account = new AccountNode();
+        account.setId(rs.getInt("id"));
+        account.setNodeType(NodeType.convert(rs.getString("node_type")));
+        account.setNodeGroup(rs.getString("node_group"));
+        account.setUserId(rs.getInt("userId"));
+        account.setCreateTime(rs.getTimestamp("create_time"));
         return account;
     }
 

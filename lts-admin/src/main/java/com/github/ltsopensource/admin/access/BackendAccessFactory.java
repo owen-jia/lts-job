@@ -31,5 +31,13 @@ public interface BackendAccessFactory {
      */
     BackendAccountAccess getBackendAccountAccess(Config config);
 
+    /**
+     * 账户节点权限
+     * @author Owen Jia at 20190515
+     * @param config
+     * @return
+     */
+    BackendAccountNodeAccess getBackendAccountNodeAccess(Config config);
+
     BackendTaskTrackerMAccess getBackendTaskTrackerMAccess(Config config);
 }

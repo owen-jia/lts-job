@@ -1,6 +1,8 @@
 package com.github.ltsopensource.admin.web.view;
 
+import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
+import com.github.ltsopensource.admin.request.AccountReq;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.admin.support.ThreadLocalUtil;
@@ -126,8 +128,7 @@ public class CommonView {
      * @return
      */
     @RequestMapping("/authority/modify-password")
-    public String modifyPasswordUI(Model model) {
-        setAttr(model);
+    public String modifyPasswordUI() {
         return "authority/modifyPassword";
     }
 
@@ -137,7 +138,9 @@ public class CommonView {
      */
     @RequestMapping("/authority/authority-manage")
     public String authorityManage(Model model) {
-        setAttr(model);
+        AccountReq request = new AccountReq();
+        List<Account> accounts = appContext.getBackendAccountAccess().searchAll(request);
+        model.addAttribute("accounts", accounts);
         return "authority/authorityManage";
     }
 

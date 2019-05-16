@@ -2,7 +2,7 @@
     <div class="col-lg-12">
         <h2>帐号管理（管理员功能）</h2>
         <ol class="breadcrumb">
-            <li><a>权限中心</a></li>
+            <li><a>我是管理员</a></li>
             <li class="active"><b>帐号管理</b></li>
         </ol>
     </div>

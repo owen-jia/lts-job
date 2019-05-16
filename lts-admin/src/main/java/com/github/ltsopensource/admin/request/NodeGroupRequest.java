@@ -5,7 +5,7 @@ import com.github.ltsopensource.core.cluster.NodeType;
 /**
  * @author Robert HG (254963746@qq.com) on 9/5/15.
  */
-public class NodeGroupRequest {
+public class NodeGroupRequest extends PaginationReq{
 
     private NodeType nodeType;
 
