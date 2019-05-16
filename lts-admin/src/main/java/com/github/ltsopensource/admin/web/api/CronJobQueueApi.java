@@ -3,6 +3,7 @@ package com.github.ltsopensource.admin.web.api;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
 import com.github.ltsopensource.admin.request.JobQueueReq;
 import com.github.ltsopensource.admin.response.PaginationRsp;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.AbstractMVC;
 import com.github.ltsopensource.admin.web.support.Builder;
 import com.github.ltsopensource.admin.web.vo.RestfulResponse;
@@ -26,6 +27,7 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
+ * 定时任务队列管理接口
  * @author Robert HG (254963746@qq.com) on 3/26/16.
  */
 @RestController
@@ -115,7 +117,7 @@ public class CronJobQueueApi extends AbstractMVC {
             } else {
                 return Builder.build(false, "该任务已经被删除或者执行完成");
             }
-            JobLogUtils.log(LogType.UPDATE, oldJobPo, appContext.getJobLogger());
+            JobLogUtils.log(LogType.UPDATE, oldJobPo, appContext.getJobLogger(), ThreadLocalUtil.getAttr("username").toString());
             return response;
         } catch (ParseException e) {
             LOGGER.error(e.getMessage(), e);
@@ -141,7 +143,7 @@ public class CronJobQueueApi extends AbstractMVC {
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
             }
         }
-        JobLogUtils.log(LogType.DEL, jobPo, appContext.getJobLogger());
+        JobLogUtils.log(LogType.DEL, jobPo, appContext.getJobLogger(), ThreadLocalUtil.getAttr("username").toString());
 
         return Builder.build(true, "ok");
     }
