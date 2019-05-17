@@ -7,6 +7,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 - develop已经同步了Lts主库1.7.0 release版本代码；
 - 在原有功能中新增了：账户表、权限表；同时增加密码修改功能、权限配置功能；该功能兼容admin管理员用户体系；
+- 新增功能目前只支持mysql，mongo还未开发；
 
 ## 1.6.9(master)变更主要点
 1. 取任务优先级,按任务设置的priority优先,再按triggerTime优先, 数据库的索引也会变
