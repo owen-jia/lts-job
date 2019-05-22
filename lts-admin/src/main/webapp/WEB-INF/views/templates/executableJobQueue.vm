@@ -29,7 +29,9 @@
 
                             <div class="col-sm-3">
                                 <select name="submitNodeGroup" class="form-control">
-                                    <option value="">-- 不限 --</option>
+                                    #if($!authority)
+                                        <option value="">-- 不限 --</option>
+                                    #end
                                     #foreach($nodeGroup in $jobClientNodeGroups)
                                         <option value="$nodeGroup.name">$nodeGroup.name</option>
                                     #end
@@ -50,6 +52,9 @@
 
                             <div class="col-sm-3">
                                 <select name="taskTrackerNodeGroup" class="form-control">
+                                    #if($!authority)
+                                        <option value="">-- 不限 --</option>
+                                    #end
                                     #foreach($nodeGroup in $taskTrackerNodeGroups)
                                         <option value="$nodeGroup.name">$nodeGroup.name</option>
                                     #end
@@ -452,7 +457,8 @@
             }
             ltsTable.post(params, 1);
         });
-        //页面刷新不默认请求，owen jia at 2019-02-27
-        //$("#searchBtn").trigger("click");
+        #if($!authority)
+        $("#searchBtn").trigger("click");
+        #end
     });
 </script>

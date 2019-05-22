@@ -13,11 +13,16 @@ import com.github.ltsopensource.queue.domain.JobPo;
 public class JobLogUtils {
 
     public static void log(LogType logType, JobPo jobPo, JobLogger jobLogger) {
+        log(logType,jobPo,jobLogger,null);
+    }
+
+    public static void log(LogType logType, JobPo jobPo, JobLogger jobLogger,String loginUsername) {
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(logType);
         jobLogPo.setLogTime(SystemClock.now());
         jobLogPo.setLevel(Level.INFO);
+        jobLogPo.setMsg(jobLogPo.getMsg()+"|"+loginUsername);
         jobLogger.log(jobLogPo);
     }
 }

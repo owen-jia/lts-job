@@ -30,7 +30,7 @@
                             <div class="col-sm-3">
                                 <select class="form-control selectpicker" name="taskTrackerNodeGroup">
                                     <option value="">-- 不限 --</option>
-                                    #foreach ($nodeGroup in $taskTrackerNodeGroups)
+                                    #foreach ($nodeGroup in $taskTrackerNodeGroupsAll)
                                         #if ($taskTrackerNodeGroup == $nodeGroup.name)
                                             <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
                                         #else
