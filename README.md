@@ -1,10 +1,16 @@
 # LTS用户文档
 LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持实时任务，定时任务和Cron任务。有较好的伸缩性，扩展性，健壮稳定性而被多家公司使用，同时也希望开源爱好者一起贡献。
 
-## 维护核心
-欢迎更多人加入一起维护，请联系我（owen-jia@outlook.com）。
+> 欢迎更多人加入一起维护  
+> 请联系我（owen-jia@outlook.com）  
+> develop已经合并了开源主库master1.7.2代码  
 
-- develop已经合并了开源主库master1.7.2代码；
+## 主要功能
+
+1. 支持分布式，解决多点故障，支持动态扩容，容错重试等
+2. Spring扩展支持，SpringBoot支持，Spring Quartz Cron任务的无缝接入支持
+3. 节点监控支持，任务执行监控支持，JVM监控支持
+4. 后台运维操作支持, 可以动态提交，更改，停止 任务
 
 ## 框架概况
 LTS 有主要有以下四种节点：
@@ -12,6 +18,7 @@ LTS 有主要有以下四种节点：
 * JobClient：主要负责提交任务, 并接收任务执行反馈结果。
 * JobTracker：负责接收并分配任务，任务调度。
 * TaskTracker：负责执行任务，执行完反馈给JobTracker。
+* LTS-Monitor：主要负责收集各个节点的监控信息，包括任务监控信息，节点JVM监控信息
 * LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理等。
 
 其中JobClient，JobTracker，TaskTracker节点都是`无状态`的。
@@ -24,11 +31,24 @@ LTS支持任务类型：
 * 实时任务：提交了之后立即就要执行的任务。
 * 定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。
 * Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?
+* Repeat任务：譬如每隔5分钟执行一次，重复50次就停止。
 
 支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
 
 ## 架构图
 ![LTS architecture](docs/LTS_architecture.png)
+
+* Registry： 注册中心，LTS提供多种实现，目前支持zookeeper（推荐）和redis, 主要用于LTS的节点信息暴露和master节点选举。
+
+* FailStore：失败存储，主要用于在部分场景远程RPC调用失败的情况，采取现存储本地KV文件系统，待远程通信恢复的时候再进行数据补偿。目前FailStore场景，主要有RetryJobClient提交**任务失败的时候，存储FailStore；TaskTracker返回任务执行结果给JobTracker的失败 时候，FailStore；TaskTracker提交BizLogger的失败的时候，存储FailStore. 目前FailStore有四种实现：leveldb，rocksdb，berkeleydb，mapdb（当然用户也可以实现扩展接口实现自己的FailStore）
+
+* QueueManager：任务队列，目前提供mysql（推荐）和mongodb两种实现（同样的用户可以自己扩容展示其他的，譬如oracle等），主要存储任务数据和任务执行日志等。
+RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和mina，用户可以自行选择，或者自己SPI扩展实现其他的。
+
+* NodeGroup：节点组，同一个节点组中的任何节点都是对等的，等效的，对外提供相同的服务。譬如TaskTracker中有10个nodeGroup都是send_msg的节点组，专门执行发送短信的任务。每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
+
+* ClusterName：LTS集群，就如上图所示，整个图就是一个集群，包含LTS的五种节点。
+
 
 ## 概念说明
 
@@ -398,3 +418,7 @@ public class Application {
 
 ## SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
+
+# 在线文档
+
+[点击查看](https://qq254963746.gitbooks.io/lts/content/introduce.html)
