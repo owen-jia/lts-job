@@ -96,7 +96,7 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
     private WhereSql buildWhereSql(NodeOnOfflineLogPaginationReq request){
         return new WhereSql()
                 .andOnNotEmpty("identity = ?", request.getIdentity())
-                .andOnNotEmpty("group = ?", request.getGroup())
+                .andOnNotEmpty("`group` = ?", request.getGroup())
                 .andOnNotEmpty("event = ?", request.getEvent())
                 .andBetween("log_time", request.getStartLogTime(), request.getEndLogTime());
     }
