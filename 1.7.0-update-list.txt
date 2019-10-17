@@ -1,0 +1,13 @@
+
+主要是稳定和优化bugfix
+
+增加手动触发任务按钮
+优化PreLoader
+增加logback 日志支持
+Web控制台 fix 周期依赖显示
+增加TaskTracker关闭FailStore配置
+优化bean copier
+
+At 20191017
+修复“待执行任的务”查询BUG
+修复“节点上下线日志”查询BUG
