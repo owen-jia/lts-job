@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * Date转换器
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
 public class DateEditor extends PropertyEditorSupport {

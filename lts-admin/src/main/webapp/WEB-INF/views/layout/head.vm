@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 #set($contextPath= $request.getContextPath())
-<title>Job管理后台</title>
+<title>管理后台</title>
 
 <link rel="shortcut icon" href="${contextPath}/assets/favicon.ico">
 
