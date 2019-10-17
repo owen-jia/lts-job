@@ -5,14 +5,9 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 ## 维护核心
 欢迎更多的大牛能够加入一起维护。请联系我（owen-jia@outlook.com）
 
-- develop已经同步了Lts主库1.7.0 release版本代码；
-- 在原有功能中新增了：账户表、权限表；同时增加密码修改功能、权限配置功能；该功能兼容admin管理员用户体系；
-- 新增功能目前只支持mysql，mongo还未开发；
-
-## 1.6.9(master)变更主要点
-1. 取任务优先级,按任务设置的priority优先,再按triggerTime优先, 数据库的索引也会变
-2. lts_executable_job_queue_ (前缀)表名改为 lts_wjq_ (前缀), 缩短表名
-3. lts_feedback_job_queue_ (前缀)表名改为 lts_fjq_ (前缀), 缩短表名
+- master已经合并了开源主库1.7.0 release代码；
+- 在原有功能中新增了：账户管理、节点组权限管理；
+- 同时增加密码修改功能，并兼容admin管理员用户体系；
 
 ## 框架概况
 LTS 有主要有以下四种节点：
@@ -37,7 +32,7 @@ LTS支持任务类型：
 
 ## 架构图
 
-![LTS architecture](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_architecture.png?dir=0&filepath=docs%2FLTS_architecture.png&oid=262a5234534e2d9fa8862f3e632c5551ebd95e21&sha=d01be5d59e8d768f49bbdc66c8334c37af8f7af5)
+![LTS architecture](docs/LTS_architecture.png)
 
 ## 概念说明
 
@@ -54,12 +49,13 @@ LTS支持任务类型：
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
-![LTS progress](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_progress.png?dir=0&filepath=docs%2FLTS_progress.png&oid=22f60a83b51b26bac8dabbb5053ec9913cefc45c&sha=774aa73d186470aedbb8f4da3c04a86a6022be05)
+![LTS progress](docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
 
-![LTS Admin](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS-Admin/LTS-Admin-cron-job-queue.png?dir=0&filepath=docs%2FLTS-Admin%2FLTS-Admin-cron-job-queue.png&oid=aecaf01bca5270a53b144891baaa3d7e56d47706&sha=9a38205065553f6e02fb27a01cb06eeb0e643486)
-目前后台带有由[ztajy](https://github.com/ztajy)提供的一个简易的认证功能. 用户名密码在auth.cfg中,用户自行修改.
+![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
+
+请参考lts-admin使用文档（待修订）
 
 ##特性
 ###1、Spring支持
