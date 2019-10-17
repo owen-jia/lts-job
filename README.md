@@ -405,7 +405,4 @@ public class Application {
 ##SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
 
-##[和其它解决方案比较](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
-
-
 
