@@ -11,12 +11,12 @@ import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.AbstractMVC;
 import com.github.ltsopensource.admin.web.filter.LoginAuthFilter;
 import com.github.ltsopensource.admin.web.support.Builder;
+import com.github.ltsopensource.admin.web.support.PasswordUtil;
 import com.github.ltsopensource.admin.web.vo.RestfulResponse;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
-import javafx.scene.control.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,9 +42,11 @@ public class SafeAuthorityApi extends AbstractMVC {
             return Builder.build(false,"id和password为必填！");
 
         Account account = appContext.getBackendAccountAccess().selectOne(request);
-        if(!account.getPassword().equals(request.getOldPassword())){
+        if(!PasswordUtil.conformPassword(request.getOldPassword(), account.getPassword())){
             return Builder.build(false, "原密码不正确！");
         }
+
+        request.setPassword(PasswordUtil.encode(request.getPassword()));
 
         boolean isOk = appContext.getBackendAccountAccess().modifyInfoById(request);
         if(!isOk) {
@@ -125,7 +127,7 @@ public class SafeAuthorityApi extends AbstractMVC {
         //验证是否存在该帐号
         Account account = new Account();
         account.setUsername(request.getUsername());
-        account.setPassword(request.getPassword());
+        account.setPassword(PasswordUtil.encode(request.getPassword()));
         account.setEmail(request.getEmail());
         //依托于id、username 进行删除，这两个在库表中都是唯一的
         appContext.getBackendAccountAccess().insert(Collections.singletonList(account));

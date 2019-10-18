@@ -4,6 +4,7 @@ import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
 import com.github.ltsopensource.admin.request.AccountReq;
 import com.github.ltsopensource.admin.support.AppConfigurer;
+import com.github.ltsopensource.admin.web.support.PasswordUtil;
 import com.github.ltsopensource.admin.web.support.SpringContextHolder;
 import com.github.ltsopensource.core.commons.utils.Base64;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
@@ -66,9 +67,12 @@ public class LoginAuthFilter implements Filter {
         String authorization = httpRequest.getHeader("authorization");
         if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
             authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
-
             // Owen Jia at 20190319，修改登陆体系，增加帐户表
             String usernameAndPassword = new String(Base64.decodeFast(authorization));
+            if(usernameAndPassword.equals(":")){
+                needAuthenticate(httpRequest, httpResponse);
+                return;
+            }
             String username1 = usernameAndPassword.split(":")[0];
             ThreadLocalUtil.setAttr("username",username1);//登录名称
 
@@ -77,9 +81,13 @@ public class LoginAuthFilter implements Filter {
                 AccountReq accountReq = new AccountReq();
                 accountReq.setUsername(username1);
                 Account account = appContext.getBackendAccountAccess().selectOne(accountReq);
-                if(account != null && usernameAndPassword.equals(account.getUsername() + ":" + account.getPassword())){
-                    authenticateSuccess(httpResponse);
-                    chain.doFilter(httpRequest, httpResponse);
+                String password1 = usernameAndPassword.split(":")[1];
+                if(account != null){
+                    if(PasswordUtil.conformPassword(password1,account.getPassword())){
+                        authenticateSuccess(httpResponse);
+                        chain.doFilter(httpRequest, httpResponse);
+                    } else
+                        needAuthenticate(httpRequest, httpResponse);
                 } else {
                     needAuthenticate(httpRequest, httpResponse);
                 }
