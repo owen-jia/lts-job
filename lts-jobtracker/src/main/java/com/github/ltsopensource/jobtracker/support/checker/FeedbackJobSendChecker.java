@@ -3,6 +3,7 @@ package com.github.ltsopensource.jobtracker.support.checker;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
+import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.jobtracker.domain.JobClientNode;
@@ -144,6 +145,8 @@ public class FeedbackJobSendChecker {
             int limit = 5;
             do {
                 jobFeedbackPos = appContext.getJobFeedbackQueue().fetchTop(jobClientNodeGroup, limit);
+                if(LOGGER.isDebugEnabled())
+                    LOGGER.debug("Dead cycle monitor print: {}.",JSON.toJSONString(jobFeedbackPos));
                 if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                     return;
                 }
