@@ -1,6 +1,7 @@
 package com.github.ltsopensource.tasktracker.processor;
 
 import com.github.ltsopensource.core.commons.utils.Callable;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.domain.JobRunResult;
@@ -77,15 +78,31 @@ public class JobPushProcessor extends AbstractProcessor {
 
         JobPushRequest requestBody = request.getBody();
 
+        final List<JobMeta> jobMetaList = requestBody.getJobMetaList();
+
+        if(CollectionUtils.isNotEmpty(jobMetaList)){
+            try {
+                for (JobMeta jobMeta1 : jobMetaList) {
+                    appContext.getRunnerPool().execute(jobMeta1, jobRunnerCallback);
+                }
+            } catch (NoAvailableJobRunnerException e) {
+                // 任务推送失败
+                return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
+                        "job push failure , no available job runner!");
+            }
+        }
+
         // JobTracker 分发来的 job
         final JobMeta jobMeta = requestBody.getJobMeta();
 
-        try {
-            appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
-        } catch (NoAvailableJobRunnerException e) {
-            // 任务推送失败
-            return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
-                    "job push failure , no available job runner!");
+        if(jobMeta != null){
+            try {
+                appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
+            } catch (NoAvailableJobRunnerException e) {
+                // 任务推送失败
+                return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
+                        "job push failure , no available job runner!");
+            }
         }
 
         // 任务推送成功
