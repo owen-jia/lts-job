@@ -7,6 +7,9 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 请联系我，邮箱是：owen-jia@outlook.com
 
+## 1.6.10(release)变更主要点
+1. 为了兼容1.7.0的Server提交job参数格式，在1.6.9基础上延伸1.6.10
+
 ## 1.6.9(master)变更主要点
 1. 取任务优先级,按任务设置的priority优先,再按triggerTime优先, 数据库的索引也会变
 2. lts_executable_job_queue_ (前缀)表名改为 lts_wjq_ (前缀), 缩短表名
