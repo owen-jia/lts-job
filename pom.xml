@@ -61,20 +61,6 @@
         <quartz.version>2.2.2</quartz.version>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>release</id>
-            <name>Team Nexus Release Repository</name>
-            <url>http://maven.isesoldev.com/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>Team Nexus Snapshot Repository</name>
-            <url>http://maven.isesoldev.com/content/repositories/snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
