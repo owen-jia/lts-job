@@ -1,7 +1,15 @@
+html {
+    position: relative;
+    min-height: 100%;
+}
 body {
     padding-top: 100px;
     padding-bottom: 40px;
     background-color: #eee;
+}
+
+.navbar-default {
+    background-color: #333;
 }
 
 .form-signin {
@@ -37,5 +45,29 @@ body {
     margin-bottom: 10px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+}
+body > .container {
+    padding: 60px 15px 0;
+}
+.container .text-muted {
+    margin: 20px 0;
+}
+
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+code {
+    font-size: 80%;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f5f5f5;
 }
 

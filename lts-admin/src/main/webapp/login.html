@@ -13,6 +13,20 @@
     <link href="/assets/css/login.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">LTS 平台</a>
+            </div>
+        </div>
+    </nav>
     <div class="container">
         <form class="form-signin">
             <h2 class="form-signin-heading">分布式任务调度平台</h2>
@@ -27,8 +41,24 @@
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="button" onclick="loginWeb()">登录</button>
         </form>
-    </div> <!-- /container -->
-    <script>s
+    </div>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>LTS的目标：</h1>
+        </div>
+        <p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added with <code>padding-top: 60px;</code> on the <code>body &gt; .container</code>.</p>
+        <p>Back to <a href="../sticky-footer">the default sticky footer</a> minus the navbar.</p>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">Copyright © 2019 - 2022 <strong>LTS</strong>. All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <script>
         function loginWeb() {
             if(!$('#username').val()) return;
             if(!$('#password').val()) return;
