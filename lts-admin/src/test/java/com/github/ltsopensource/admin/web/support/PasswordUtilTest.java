@@ -10,13 +10,13 @@ public class PasswordUtilTest {
 
     @Test
     public void pwTest(){
-        String pw = "123";
+        String pw = "12";
 
         String enPw = PasswordUtil.encode(pw);
 
         System.out.println(enPw);
 
-        System.out.println(PasswordUtil.conformPassword("123",enPw));
+        System.out.println(PasswordUtil.conformPassword("12",enPw));
     }
 
 }

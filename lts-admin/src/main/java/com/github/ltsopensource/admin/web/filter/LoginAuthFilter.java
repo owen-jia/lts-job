@@ -4,14 +4,15 @@ import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
 import com.github.ltsopensource.admin.request.AccountReq;
 import com.github.ltsopensource.admin.support.AppConfigurer;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.support.PasswordUtil;
 import com.github.ltsopensource.admin.web.support.SpringContextHolder;
 import com.github.ltsopensource.core.commons.utils.Base64;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
-import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.io.IOException;
  * @author Robert HG (254963746@qq.com)
  */
 public class LoginAuthFilter implements Filter {
-    private static final String AUTH_PREFIX = "Basic ";
+    public static final String AUTH_PREFIX = "Basic_";
     private AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static String username = "admin";
@@ -37,7 +38,7 @@ public class LoginAuthFilter implements Filter {
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
         username = AppConfigurer.getProperty("console.username", username);
-        password = AppConfigurer.getProperty("console.password", password);
+        password = PasswordUtil.encode(AppConfigurer.getProperty("console.password", password));
 
         String excludedURLs = filterConfig.getInitParameter("excludedURLs");
         if (StringUtils.isNotEmpty(excludedURLs)) {
@@ -64,13 +65,13 @@ public class LoginAuthFilter implements Filter {
             return;
         }
 
-        String authorization = httpRequest.getHeader("authorization");
-        if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
-            authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
+        String authorization = this.getAuthorization((HttpServletRequest)request);
+        if (null != authorization && authorization.startsWith(AUTH_PREFIX)) {
+            authorization = authorization.split("_")[1];
             // Owen Jia at 20190319，修改登陆体系，增加帐户表
             String usernameAndPassword = new String(Base64.decodeFast(authorization));
-            if(usernameAndPassword.equals(":")){
-                needAuthenticate(httpRequest, httpResponse);
+            if(usernameAndPassword.equals("undefined")){
+                needAuthenticate(httpResponse);
                 return;
             }
             String username1 = usernameAndPassword.split(":")[0];
@@ -87,9 +88,9 @@ public class LoginAuthFilter implements Filter {
                         authenticateSuccess(httpResponse);
                         chain.doFilter(httpRequest, httpResponse);
                     } else
-                        needAuthenticate(httpRequest, httpResponse);
+                        needAuthenticate(httpResponse);
                 } else {
-                    needAuthenticate(httpRequest, httpResponse);
+                    needAuthenticate(httpResponse);
                 }
             } else {
                 if ((username + ":" + password).equals(usernameAndPassword)) {
@@ -98,11 +99,11 @@ public class LoginAuthFilter implements Filter {
                     authenticateSuccess(httpResponse);
                     chain.doFilter(httpRequest, httpResponse);
                 } else {
-                    needAuthenticate(httpRequest, httpResponse);
+                    needAuthenticate(httpResponse);
                 }
             }
         } else {
-            needAuthenticate(httpRequest, httpResponse);
+            needAuthenticate(httpResponse);
         }
     }
 
@@ -122,6 +123,22 @@ public class LoginAuthFilter implements Filter {
         return false;
     }
 
+    /**
+     * 验证权限cookie是否有效
+     * @param request
+     * @return boolean true有效,false无效
+     */
+    private String getAuthorization(final HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        for(int i = 0; i< cookies.length; i++){
+            Cookie t = cookies[i];
+            if(t.getName().equals("authorization")){
+                return t.getValue();
+            }
+        }
+        return request.getHeader("authorization");
+    }
+
     private void authenticateSuccess(final HttpServletResponse response) {
         response.setStatus(200);
         response.setHeader("Pragma", "No-cache");
@@ -129,11 +146,14 @@ public class LoginAuthFilter implements Filter {
         response.setDateHeader("Expires", 0);
     }
 
-    private void needAuthenticate(final HttpServletRequest request, final HttpServletResponse response) {
-        response.setStatus(401);
-        response.setHeader("Cache-Control", "no-store");
-        response.setDateHeader("Expires", 0);
-        response.setHeader("WWW-authenticate", AUTH_PREFIX + "Realm=\"lts admin need auth\"");
+    private void needAuthenticate(final HttpServletResponse response) {
+        try {
+            response.setHeader("Cache-Control", "no-store");
+            response.setDateHeader("Expires", 0);
+            response.sendRedirect("/login.html");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

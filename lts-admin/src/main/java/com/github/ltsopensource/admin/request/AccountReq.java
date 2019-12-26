@@ -1,7 +1,7 @@
 package com.github.ltsopensource.admin.request;
 
 /**
- * 账户表查询参数
+ * 账户参数
  * @author: Owen Jia
  * @time: 2019/3/19 13:42
  */
@@ -12,6 +12,7 @@ public class AccountReq extends PaginationReq {
     String oldPassword;
     String email;
     String searchKeys;
+    String authorization;
 
     public String getUsername() {
         return username;
@@ -61,6 +62,14 @@ public class AccountReq extends PaginationReq {
         this.searchKeys = searchKeys;
     }
 
+    public String getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
+    }
+
     @Override
     public String toString() {
         return "AccountReq{" +
@@ -70,6 +79,7 @@ public class AccountReq extends PaginationReq {
                 ", oldPassword='" + oldPassword + '\'' +
                 ", email='" + email + '\'' +
                 ", searchKeys='" + searchKeys + '\'' +
+                ", authorization='" + authorization + '\'' +
                 '}';
     }
 }

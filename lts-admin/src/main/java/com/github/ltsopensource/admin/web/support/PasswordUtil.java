@@ -1,7 +1,11 @@
 package com.github.ltsopensource.admin.web.support;
 
+import com.github.ltsopensource.admin.web.filter.LoginAuthFilter;
 import com.github.ltsopensource.core.commons.utils.Md5Encrypt;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
 
 /**
  * 密码Util
@@ -9,8 +13,6 @@ import org.apache.commons.lang.StringUtils;
  * @time: 2019/10/18 13:17
  */
 public class PasswordUtil {
-
-    private static final String passwordPre = "$";
 
     /**
      * 加密
@@ -22,7 +24,7 @@ public class PasswordUtil {
             return null;
         }
 
-        return passwordPre + Md5Encrypt.md5(password);
+        return Md5Encrypt.md5(password);
     }
 
     /**
@@ -55,4 +57,13 @@ public class PasswordUtil {
             return password.equals(oldPassword);
     }
 
+    /**
+     * 获取权限凭证
+     * @param username 登录账户
+     * @param password 登录密码（推荐密文）
+     * @return String
+     */
+    public static String getAuthorization(String username,String password){
+        return LoginAuthFilter.AUTH_PREFIX + Base64.encode((username+":"+password).getBytes())+"_"+new Date().getTime();
+    }
 }

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录</title>
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/assets/css/animate.css" rel="stylesheet">
+    <link href="/assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/assets/css/login.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <form class="form-signin">
+            <h2 class="form-signin-heading">分布式任务调度平台</h2>
+            <label for="username" class="sr-only">Account</label>
+            <input type="text" id="username" class="form-control" placeholder="Account" required autofocus>
+            <label for="password" class="sr-only">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Password" required>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="remember-me"> 5内天免登录
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="loginWeb()">登录</button>
+        </form>
+    </div> <!-- /container -->
+    <script>s
+        function loginWeb() {
+            if(!$('#username').val()) return;
+            if(!$('#password').val()) return;
+            $.ajax({
+                url: '/api/pub/login',
+                type: 'POST',
+                dataType: 'json',
+                data: {"username":$('#username').val(),"password":hex_md5($("#password").val())},
+                success: function (json) {
+                    if (json && json.success) {
+                        LTS.cookie.setCookie('authorization', json.rows[0], $("input[type=checkbox]").prop("checked")?5:0.01);
+                        location.href = "/index.htm";
+                    } else {
+                        if (json) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+    <script src="/assets/js/jquery-2.1.1.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/sweetalert/sweetalert.min.js"></script>
+    <script src="/assets/js/plugins/artTemplate/template.js"></script>
+    <script src="/assets/js/md5.js"></script>
+    <script src="/assets/js/lts.js"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@
  */
 var LTS = {
     colFormatter: {},
+    cookie:{},
     ReExp: {
         time: /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$/,         // yyyy-MM-dd HH:mm:ss
         number: /^\d+$/              // 正整数
@@ -70,6 +71,30 @@ LTS.colFormatter.repeatCountFormat = function (v, row) {
     }
     return row['repeatedCount'] + '/' + (row['repeatCount'])
 };
+LTS.cookie.getCookie = function(name){
+    name = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++)
+    {
+        var c = ca[i].trim();
+        if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+    }
+    return "";
+};
+LTS.cookie.setCookie = function(name,value,exDay){
+    if(name && name.length > 0){
+        var exp = new Date();
+        exp.setTime(exp.getTime() + exDay*24*60*60*1000);
+        document.cookie = name + "=" + value + "; expires="+exp.toGMTString();
+    }
+}
+LTS.cookie.deleteCookie = function (name){
+    var exp = new Date();
+    exp.setTime(exp.getTime() - 1);
+    var cval=this.getCookie(name);
+    if(cval!=null)
+        document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+}
 
 template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
@@ -156,7 +181,7 @@ function LtsTable(options) {
     };
 
     _this.showLoading = function () {
-        var loading = '<div id="loading" style="width:50px;position:absolute;left: -100px;"><img src="assets/img/loading.gif" style="width:30px;"/></div>';
+        var loading = '<div id="loading" style="width:50px;position:absolute;left: -100px;"><img src="/assets/img/loading.gif" style="width:30px;"/></div>';
         var offset = _this.container.offset();
         var left = _this.container.width() / 2 + offset.left;
         if ($("#loading").length == 0) {
