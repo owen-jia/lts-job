@@ -50,9 +50,13 @@ public class SafeAuthorityApi extends AbstractMVC {
             String[] login = new String(Base64.decodeFast(loginKey)).split(":");
             request.setUsername(login[0]);
             request.setPassword(login[1]);
-            Account account = appContext.getBackendAccountAccess().selectOne(request);
-            if(account == null){
-                LOGGER.warn("该退出用户<"+login[0]+">不存在表中");
+            if(AppConfigurer.getProperty("console.username").equals(login[0])){
+                LOGGER.info("管理员<"+login[0]+">退出！");
+            } else {
+                Account account = appContext.getBackendAccountAccess().selectOne(request);
+                if (account == null) {
+                    LOGGER.warn("该退出用户<" + login[0] + ">不存在表中");
+                }
             }
         } catch (RuntimeException e){
             LOGGER.error("退出错误"+e.getCause());
