@@ -11,6 +11,10 @@
     <packaging>war</packaging>
     <artifactId>lts-admin</artifactId>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
