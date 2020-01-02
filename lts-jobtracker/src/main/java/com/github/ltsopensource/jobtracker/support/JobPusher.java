@@ -141,7 +141,7 @@ public class JobPusher {
                             try {
                                 RemotingCommand responseCommand = responseFuture.getResponseCommand();
                                 if (responseCommand == null) {
-                                    LOGGER.warn("Job push failed! response command is null!");
+                                    LOGGER.warn("Job push failed! response command is null!" + nodeGroup + ", identity=" + identity + ", job=" + jobPo);
                                     return;
                                 }
                                 if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
