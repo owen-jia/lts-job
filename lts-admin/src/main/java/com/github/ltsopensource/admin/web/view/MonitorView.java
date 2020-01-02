@@ -1,17 +1,14 @@
 package com.github.ltsopensource.admin.web.view;
 
-import com.github.ltsopensource.admin.cluster.BackendAppContext;
+import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.vo.NodeInfo;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.json.JSON;
-import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
@@ -20,16 +17,7 @@ import java.util.*;
  * @author Robert HG (254963746@qq.com) on 8/22/15.
  */
 @Controller
-public class MonitorView {
-
-    @Autowired
-    private BackendAppContext appContext;
-
-    @ModelAttribute
-    public void setModel(Model model){
-        model.addAttribute("authority", ThreadLocalUtil.getAttr("authority"));
-        model.addAttribute("username", ThreadLocalUtil.getAttr("username"));
-    }
+public class MonitorView extends AbstractView{
 
     @RequestMapping("monitor/jobtracker-monitor")
     public String jobTrackerMonitor(Model model) {
@@ -48,7 +36,7 @@ public class MonitorView {
         initTimeRange(model);
         List<NodeGroupPo> nodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         List<NodeInfo> nodeInfos = appContext.getBackendTaskTrackerMAccess().getTaskTrackers();
-        setGroupIdMap(model, nodeGroups, nodeInfos);
+        setGroupIdMap(model, dataAuthority(nodeGroups), nodeInfos);
 
         return "monitor/tasktrackerMonitor";
     }
@@ -59,7 +47,7 @@ public class MonitorView {
         initTimeRange(model);
         List<NodeGroupPo> nodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         List<NodeInfo> nodeInfos = appContext.getBackendJobClientMAccess().getJobClients();
-        setGroupIdMap(model, nodeGroups, nodeInfos);
+        setGroupIdMap(model, dataAuthority(nodeGroups), nodeInfos);
 
         return "monitor/jobClientMonitor";
     }
@@ -81,9 +69,10 @@ public class MonitorView {
             if (CollectionUtils.isNotEmpty(nodeInfos)) {
                 for (NodeInfo nodeInfo : nodeInfos) {
                     Set<String> identities = groupIdMap.get(nodeInfo.getNodeGroup());
+                    Object auth = ThreadLocalUtil.getAttr("authority");
                     if (identities == null) {
                         identities = new HashSet<String>();
-                        groupIdMap.put(nodeInfo.getNodeGroup(), identities);
+                        if((Boolean) auth == true) groupIdMap.put(nodeInfo.getNodeGroup(), identities);
                     }
                     identities.add(nodeInfo.getIdentity());
                 }
