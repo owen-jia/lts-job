@@ -8,8 +8,10 @@
         <ul class="nav navbar-top-links navbar-right">
             <li class="welcome-message">
                 <span class="m-r-sm text-muted">
-                    <a href="https://github.com/owen-jia/lts-parent" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> github</span></a>
-                    <a href="https://my.oschina.net/timestorm" target="_blank"><span class="label label-info"><i class="fa fa-users"></i> oschina</span></a>
+                    <a href="http://ltsadmin.isesoldev.com/index.htm" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> Dev</span></a>
+                    <a href="https://ltsadmin.i5sesol.com/index.htm" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> Qa</span></a>
+                    <a href="https://ltsadmin.preisesol.com/index.htm" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> Pre</span></a>
+                    <a href="https://ltsadmin.isesol.com/index.htm" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> Prod</span></a>
                 </span>
             </li>
             <li class="dropdown">
@@ -23,7 +25,7 @@
                     #if( !$authority )
                     <li><a href="${contextPath}/authority/modify-password.htm">修改密码</a></li>
                     #end
-                    <li><a href="#" onclick="quitWeb()">退出</a></li>
+                    <li><a href="#">退出</a></li>
                 </ul>
             </li>
         </ul>
