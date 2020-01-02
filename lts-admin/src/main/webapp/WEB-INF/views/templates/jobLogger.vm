@@ -213,9 +213,9 @@
                 sweetAlert("结束查询时间格式不正确", "格式 yyyy-MM-dd HH:mm:ss", "error");
                 return;
             }
-            // 不允许查询大于5天的日志数据，Owen Jia at 2019-02-27
-            if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 5 * 24 * 60 * 60 * 1000) {
-                sweetAlert("时间跨度禁止大于5天", "如有需求请联系相关负责人员", "error");
+            // 控制日志查询量，Owen Jia at 2019-02-27
+            if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 3 * 24 * 60 * 60 * 1000) {
+                sweetAlert("时间跨度禁止大于3天", "如有需求请联系相关负责人员", "error");
                 return;
             }
 
@@ -226,31 +226,6 @@
             };
 
             ltsTable.post(params, 1);
-            // 采用5天日志查询范围控制，下来逻辑不需要了；owen jia at 2019-02-27
-            // if (!realTaskId) {
-            //     // 如果没有按ID查询，那么要对时间跨度长的做提醒(超过1小时的)
-            //     if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 60 * 60 * 1000) {
-            //         swal({
-            //             title: "确认查询操作？",
-            //             text: "您当前查询日志没有按照任务ID查询，时间跨度大于1小时，可能查询结果会比较大 !",
-            //             type: "warning",
-            //             showCancelButton: true,
-            //             confirmButtonColor: "#DD6B55",
-            //             cancelButtonText: "取消",
-            //             confirmButtonText: "我要查询",
-            //             closeOnConfirm: true
-            //         }, function (isConfirm) {
-            //             if (isConfirm) {
-            //                 ltsTable.post(params, 1);
-            //             }
-            //         });
-            //     } else {
-            //         ltsTable.post(params, 1);
-            //     }
-            // } else {
-            //     ltsTable.post(params, 1);
-            // }
-
         });
 
         var realTaskId = $("input[name='realTaskId']").val();
