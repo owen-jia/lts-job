@@ -23,9 +23,7 @@
                             <label class="col-sm-1 control-label">节点组别</label>
 
                             <div class="col-sm-3">
-                                <select name="nodeGroup" class="form-control">
-                                    <option value="">不限</option>
-                                </select>
+                                <select name="nodeGroup" class="form-control"></select>
                             </div>
 
                             <label class="col-sm-1 control-label">节点标识</label>
@@ -107,7 +105,10 @@
     $(document).ready(function () {
 
         // select框相关的事件
-        var nodeGroupSelectHtml = '<option value="">不限</option>';
+        var nodeGroupSelectHtml = '<option value="null">--请选择节点组--</option>';
+        #if( $!authority )
+            nodeGroupSelectHtml = '<option value="">不限</option>';
+        #end
         for (var nodeGroup in groupIdMap) {
             nodeGroupSelectHtml += '<option value="' + nodeGroup + '">' + nodeGroup + '</option>';
         }
@@ -184,9 +185,9 @@
             showJVMDataChart(params);
 
         });
-
+        #if( $!authority )
         $("#searchBtn").trigger("click");
-
+        #end
         function showChart(json) {
             if (json.results == 0) {
                 $("#highcharts").html("暂无数据，请重新选择条件。");
