@@ -1,8 +1,8 @@
 package com.github.ltsopensource.admin.web.support;
 
 import com.github.ltsopensource.admin.web.filter.LoginAuthFilter;
+import com.github.ltsopensource.core.commons.utils.Base64;
 import com.github.ltsopensource.core.commons.utils.Md5Encrypt;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;

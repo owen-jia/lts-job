@@ -253,7 +253,7 @@ public class Base64 {
     }
 
     /**
-     * @since 1.8+
+     *
      * @param binaryData
      * @return
      */
