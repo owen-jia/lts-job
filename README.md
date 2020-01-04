@@ -61,14 +61,13 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
 3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
 
-
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
 ![LTS progress](docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
-![sss](docs/LTS-Admin/LTS-Admin-login.png)
+![sss](docs/LTS-Admin/LTS-Admin-user-login.png)
 
 请参考lts-admin使用文档（待修订）
 
