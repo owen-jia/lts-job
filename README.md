@@ -50,7 +50,6 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 
 * ClusterName：LTS集群，就如上图所示，整个图就是一个集群，包含LTS的五种节点。
 
-
 ## 概念说明
 
 ### 节点组
@@ -69,7 +68,7 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 ![LTS progress](docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
-![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
+![sss](docs/LTS-Admin/LTS-Admin-login.png)
 
 请参考lts-admin使用文档（待修订）
 
