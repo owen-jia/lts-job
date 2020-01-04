@@ -23,9 +23,7 @@
                             <label class="col-sm-1 control-label">节点组别</label>
 
                             <div class="col-sm-3">
-                                <select name="nodeGroup" class="form-control">
-                                    <option value="">不限</option>
-                                </select>
+                                <select name="nodeGroup" class="form-control"></select>
                             </div>
 
                             <label class="col-sm-1 control-label">节点标识</label>
@@ -106,7 +104,10 @@
     $(document).ready(function () {
 
         // select框相关的事件
-        var nodeGroupSelectHtml = '<option value="">不限</option>';
+        var nodeGroupSelectHtml = '<option value="null">--请选择节点组--</option>';
+        #if( $!authority )
+            nodeGroupSelectHtml = '<option value="">不限</option>';
+        #end
         for (var nodeGroup in groupIdMap) {
             nodeGroupSelectHtml += '<option value="' + nodeGroup + '">' + nodeGroup + '</option>';
         }
@@ -156,6 +157,11 @@
                 swal("结束时间格式不正确", "格式:yyyy-MM-dd HH:mm:ss", "warning");
                 return;
             }
+            // 控制日志查询量
+            if ((DateUtil.parse(endTime).getTime() - DateUtil.parse(startTime).getTime()) > 3 * 24 * 60 * 60 * 1000) {
+                sweetAlert("时间跨度禁止大于3天", "如有需求请联系相关负责人员", "error");
+                return;
+            }
             params.startTime = DateUtil.parse(startTime).getTime();
             params.endTime = DateUtil.parse(endTime).getTime();
             params.start = 0;
@@ -183,9 +189,9 @@
             showJVMDataChart(params);
 
         });
-
+        #if( $!authority )
         $("#searchBtn").trigger("click");
-
+        #end
         function showChart(json) {
             if (json.results == 0) {
                 $("#highcharts").html("暂无数据，请重新选择条件。");
