@@ -3,7 +3,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 > 欢迎更多人加入一起维护  
 > 请联系我（owen-jia@outlook.com）  
-> develop已经合并了开源主库master1.7.2代码  
+> 已经合并了开源主库1.7.2-SNAPSHOT版本代码  
 
 ## 主要功能
 
@@ -19,7 +19,7 @@ LTS 有主要有以下四种节点：
 * JobTracker：负责接收并分配任务，任务调度。
 * TaskTracker：负责执行任务，执行完反馈给JobTracker。
 * LTS-Monitor：主要负责收集各个节点的监控信息，包括任务监控信息，节点JVM监控信息
-* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理等。
+* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理，权限管理等。
 
 其中JobClient，JobTracker，TaskTracker节点都是`无状态`的。
 可以部署多个并动态的进行删减，来实现负载均衡，实现更大的负载量, 并且框架采用FailStore策略使LTS具有很好的容错能力。 
@@ -87,8 +87,10 @@ SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即�
 
 ### 4、故障转移
 当正在执行任务的TaskTracker宕机之后，JobTracker会立马将分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
+
 ### 5、节点监控
 可以对JobTracker，TaskTracker节点进行资源监控，任务监控等，可以实时的在LTS-Admin管理后台查看，进而进行合理的资源调配。
+
 ### 6、多样化任务执行结果支持
 LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`，`EXECUTE_LATER`，`EXECUTE_EXCEPTION`，并对每种结果采取相应的处理机制，譬如重试。
 
@@ -107,6 +109,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 用户使用一般分为两种：
 ### 1、Maven构建
 可以通过maven命令将lts的jar包上传到本地仓库中。在父pom.xml中添加相应的repository，并用deploy命令上传即可。具体引用方式可以参考lts中的例子即可。
+
 ### 2、直接Jar引用
 需要将lts的各个模块打包成单独的jar包，并且将所有lts依赖包引入。具体引用哪些jar包可以参考lts中的例子即可。
 
@@ -145,15 +148,19 @@ lts-{version}-bin的文件结构
         |   |-- lib
         |       |-- *.jar
         |-- lts-admin.war
-
 ```	    
-        
-3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
-4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
-##JobClient（部署）使用
+3. JobTracker启动。
+如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
+
+4. LTS-Admin启动。
+修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+
+## JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-###API方式启动
+
+### API方式启动
+
 ```java
 JobClient jobClient = new RetryJobClient();
 jobClient.setNodeGroup("test_jobClient");
@@ -172,7 +179,8 @@ Response response = jobClient.submitJob(job);
 ```
     
 ### Spring XML方式启动
-```java
+
+```xml
 <bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
@@ -193,7 +201,9 @@ Response response = jobClient.submitJob(job);
     </property>
 </bean>
 ```    
+
 ### Spring 全注解方式
+
 ```java
 @Configuration
 public class LTSSpringConfig {
@@ -217,6 +227,7 @@ public class LTSSpringConfig {
 ```
 ## TaskTracker(部署使用)
 需要引入lts的jar包有`lts-tasktracker-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
+
 ### 定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
@@ -234,6 +245,7 @@ public class MyJobRunner implements JobRunner {
     }
 }
 ```
+
 ### API方式启动
 ```java 
 TaskTracker taskTracker = new TaskTracker();
@@ -244,8 +256,9 @@ taskTracker.setClusterName("test_cluster");
 taskTracker.setWorkThreads(20);
 taskTracker.start();
 ```
+
 ### Spring XML方式启动
-```java
+```xml
 <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
     <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
     <property name="bizLoggerLevel" value="INFO"/>
@@ -265,6 +278,7 @@ taskTracker.start();
     </property>
 </bean>
 ```
+
 ### Spring注解方式启动
 ```java
 @Configuration
@@ -297,6 +311,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
     }
 }
 ```
+
 ## 参数说明
 [参数说明](https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
 
@@ -392,8 +407,8 @@ public class TestJobRunnerTester extends JobRunnerTester {
     <property name="nodeGroup" value="quartz_test_group"/>
 </bean>
 ```
-## Spring Boot 支持
 
+## Spring Boot 支持
 ```java
 @SpringBootApplication
 @EnableJobTracker       // 启动JobTracker
@@ -408,7 +423,6 @@ public class Application {
 ```
 
 剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
-
 
 ## 多网卡选择问题
 当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
