@@ -66,7 +66,7 @@
         });
     });
 
-    var quitWeb = function () {
+    $(document).on("focus", "#quit", function () {
         $.ajax({
             url: '/api/pub/quit',
             type: 'POST',
@@ -83,5 +83,5 @@
                 }
             }
         });
-    }
+    });
 </script>
