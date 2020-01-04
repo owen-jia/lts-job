@@ -408,7 +408,6 @@ public class Application {
 
 剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
 
-
 ## 多网卡选择问题
 当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
 
@@ -418,6 +417,6 @@ public class Application {
 ## SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
 
-# 在线文档
+## 版本开发计划
 
-[点击查看](https://qq254963746.gitbooks.io/lts/content/introduce.html)
+[点击查看：work-plan](work-plan.md)
