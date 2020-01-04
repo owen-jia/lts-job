@@ -23,7 +23,7 @@
                     #if( !$authority )
                     <li><a href="${contextPath}/authority/modify-password.htm">修改密码</a></li>
                     #end
-                    <li><a href="#">退出</a></li>
+                    <li><a href="#" onclick="quitWeb()">退出</a></li>
                 </ul>
             </li>
         </ul>

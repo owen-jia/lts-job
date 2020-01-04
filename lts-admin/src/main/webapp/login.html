@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录</title>
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/assets/css/animate.css" rel="stylesheet">
+    <link href="/assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+    <link href="/assets/css/login.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">LTS 平台</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <form class="form-signin">
+            <h2 class="form-signin-heading">分布式任务调度平台</h2>
+            <label for="username" class="sr-only">Account</label>
+            <input type="text" id="username" class="form-control" placeholder="Account" required autofocus>
+            <label for="password" class="sr-only">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Password" required>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="remember-me"> 5内天免登录
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="loginWeb()">登录</button>
+        </form>
+    </div>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header">
+            <h2>LTS的目标：</h2>
+        </div>
+        <p class="lead">用于解决分布式场景下的任务调度问题，分配执行和动态管理JOB，并支持job日志和各节点状态查询，后台可动态提交、更改、停止、删除任务。</p>
+        <h4>支持多种任务类型：</h4>
+        <ul class="lead">
+            <li>实时任务：提交了之后立即就要执行的任务，通过JobClient提交。</li>
+            <li>定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。</li>
+            <li>Repeat任务：在指定时间按指定的间隔执行指定次数的任务。</li>
+            <li>Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?。</li>
+        </ul>
+        <p class="lead">LTS具有很好的伸缩性、扩展性、健壮性和稳定性。</p>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">Copyright © 2019 - 2020 <strong>LTS</strong>. All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        function loginWeb() {
+            if(!$('#username').val()) return;
+            if(!$('#password').val()) return;
+            $.ajax({
+                url: '/api/pub/login',
+                type: 'POST',
+                dataType: 'json',
+                data: {"username":$('#username').val(),"password":hex_md5($("#password").val())},
+                success: function (json) {
+                    if (json && json.success) {
+                        LTS.cookie.setCookie('authorization', json.rows[0], $("input[type=checkbox]").prop("checked")?5:0.01);
+                        location.href = "/index.htm";
+                    } else {
+                        if (json) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+    <script src="/assets/js/jquery-2.1.1.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/sweetalert/sweetalert.min.js"></script>
+    <script src="/assets/js/plugins/artTemplate/template.js"></script>
+    <script src="/assets/js/md5.js"></script>
+    <script src="/assets/js/lts.js"></script>
+</body>
+</html>

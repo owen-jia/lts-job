@@ -3,7 +3,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 > 欢迎更多人加入一起维护  
 > 请联系我（owen-jia@outlook.com）  
-> master已经合并了开源主库release1.7.0代码  
+> develop已经合并了开源主库master1.7.2代码  
 
 ## 主要功能
 
@@ -31,20 +31,32 @@ LTS支持任务类型：
 * 实时任务：提交了之后立即就要执行的任务。
 * 定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。
 * Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?
+* Repeat任务：譬如每隔5分钟执行一次，重复50次就停止。
 
 支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
 
 ## 架构图
-
 ![LTS architecture](docs/LTS_architecture.png)
+
+* Registry： 注册中心，LTS提供多种实现，目前支持zookeeper（推荐）和redis, 主要用于LTS的节点信息暴露和master节点选举。
+
+* FailStore：失败存储，主要用于在部分场景远程RPC调用失败的情况，采取现存储本地KV文件系统，待远程通信恢复的时候再进行数据补偿。目前FailStore场景，主要有RetryJobClient提交**任务失败的时候，存储FailStore；TaskTracker返回任务执行结果给JobTracker的失败 时候，FailStore；TaskTracker提交BizLogger的失败的时候，存储FailStore. 目前FailStore有四种实现：leveldb，rocksdb，berkeleydb，mapdb（当然用户也可以实现扩展接口实现自己的FailStore）
+
+* QueueManager：任务队列，目前提供mysql（推荐）和mongodb两种实现（同样的用户可以自己扩容展示其他的，譬如oracle等），主要存储任务数据和任务执行日志等。
+RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和mina，用户可以自行选择，或者自己SPI扩展实现其他的。
+
+* NodeGroup：节点组，同一个节点组中的任何节点都是对等的，等效的，对外提供相同的服务。譬如TaskTracker中有10个nodeGroup都是send_msg的节点组，专门执行发送短信的任务。每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
+
+* ClusterName：LTS集群，就如上图所示，整个图就是一个集群，包含LTS的五种节点。
+
 
 ## 概念说明
 
-### 节点组
+###节点组
 1. 英文名称 NodeGroup,一个节点组等同于一个小的集群，同一个节点组中的各个节点是对等的，等效的，对外提供相同的服务。
 2. 每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
 
-### FailStore
+###FailStore
 1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
 2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
 3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
@@ -56,7 +68,6 @@ LTS支持任务类型：
 ![LTS progress](docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
-
 ![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
 
 请参考lts-admin使用文档（待修订）
@@ -64,8 +75,10 @@ LTS支持任务类型：
 ## 特性
 ### 1、Spring支持
 LTS可以完全不用Spring框架，但是考虑到很用用户项目中都是用了Spring框架，所以LTS也提供了对Spring的支持，包括Xml和注解，引入`lts-spring.jar`即可。
+
 ### 2、业务日志记录器
 在TaskTracker端提供了业务日志记录器，供应用程序使用，通过这个业务日志器，可以将业务日志提交到JobTracker，这些业务日志可以通过任务ID串联起来，可以在LTS-Admin中实时查看任务的执行进度。
+
 ### 3、SPI扩展支持
 SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即可被LTS使用，目前开放出来的扩展接口有
 
@@ -82,14 +95,14 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 * EXECUTE_SUCCESS: 执行成功,这种情况，直接反馈客户端（如果任务被设置了要反馈给客户端）。
 * EXECUTE_FAILED：执行失败，这种情况，直接反馈给客户端，不进行重试。
 * EXECUTE_LATER：稍后执行（需要重试），这种情况，不反馈客户端，重试策略采用1min，2min，3min的策略，默认最大重试次数为10次，用户可以通过参数设置修改这个重试次数。
-* EXECUTE_EXCEPTION：执行异常, 这中情况也会重试(重试策略，同上)
+* EXECUTE_EXCEPTION：执行异常, 这种情况也会重试(重试策略，同上)
 
 ### 7、FailStore容错
 采用FailStore机制来进行节点容错，Fail And Store，不会因为远程通信的不稳定性而影响当前应用的运行。具体FailStore说明，请参考概念说明中的FailStore说明。
 
 ## 项目编译打包
 项目主要采用maven进行构建，目前提供shell脚本的打包。
-环境依赖：`Java(jdk1.7)` `Maven`
+环境依赖：`Java(jdk1.6+)` `Maven`
 
 用户使用一般分为两种：
 ### 1、Maven构建
@@ -138,10 +151,9 @@ lts-{version}-bin的文件结构
 3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
 4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
-## JobClient（部署）使用
+##JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-
-### API方式启动
+###API方式启动
 ```java
 JobClient jobClient = new RetryJobClient();
 jobClient.setNodeGroup("test_jobClient");
@@ -181,7 +193,6 @@ Response response = jobClient.submitJob(job);
     </property>
 </bean>
 ```    
-
 ### Spring 全注解方式
 ```java
 @Configuration
@@ -204,10 +215,8 @@ public class LTSSpringConfig {
     }
 }
 ```
-
 ## TaskTracker(部署使用)
 需要引入lts的jar包有`lts-tasktracker-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-
 ### 定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
@@ -225,7 +234,6 @@ public class MyJobRunner implements JobRunner {
     }
 }
 ```
-
 ### API方式启动
 ```java 
 TaskTracker taskTracker = new TaskTracker();
@@ -236,7 +244,6 @@ taskTracker.setClusterName("test_cluster");
 taskTracker.setWorkThreads(20);
 taskTracker.start();
 ```
-
 ### Spring XML方式启动
 ```java
 <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
@@ -258,7 +265,6 @@ taskTracker.start();
     </property>
 </bean>
 ```
-
 ### Spring注解方式启动
 ```java
 @Configuration
@@ -291,7 +297,6 @@ public class LTSSpringConfig implements ApplicationContextAware {
     }
 }
 ```
-
 ## 参数说明
 [参数说明](https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
 
@@ -414,4 +419,6 @@ public class Application {
 ## SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
 
+# 在线文档
 
+[点击查看](https://qq254963746.gitbooks.io/lts/content/introduce.html)

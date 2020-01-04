@@ -11,16 +11,20 @@ import com.github.ltsopensource.admin.support.ThreadLocalUtil;
 import com.github.ltsopensource.admin.web.AbstractMVC;
 import com.github.ltsopensource.admin.web.filter.LoginAuthFilter;
 import com.github.ltsopensource.admin.web.support.Builder;
+import com.github.ltsopensource.admin.web.support.PasswordUtil;
 import com.github.ltsopensource.admin.web.vo.RestfulResponse;
 import com.github.ltsopensource.core.cluster.NodeType;
+import com.github.ltsopensource.core.commons.utils.Base64;
+import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
-import javafx.scene.control.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +40,75 @@ public class SafeAuthorityApi extends AbstractMVC {
     @Autowired
     private BackendAppContext appContext;
 
+    @RequestMapping("/pub/quit")
+    public RestfulResponse quit(AccountReq request){
+        if(StringUtils.isEmpty(request.getAuthorization())){
+            return Builder.build(false, "参数不能为空");
+        }
+        try {
+            String loginKey = request.getAuthorization().split("_")[1];
+            String[] login = new String(Base64.decodeFast(loginKey)).split(":");
+            request.setUsername(login[0]);
+            request.setPassword(login[1]);
+            if(AppConfigurer.getProperty("console.username").equals(login[0])){
+                LOGGER.info("管理员<"+login[0]+">退出！");
+            } else {
+                Account account = appContext.getBackendAccountAccess().selectOne(request);
+                if (account == null) {
+                    LOGGER.warn("该退出用户<" + login[0] + ">不存在表中");
+                }
+            }
+        } catch (RuntimeException e){
+            LOGGER.error("退出错误"+e.getCause());
+            return Builder.build(false, "退出异常，请直接关闭页面");
+        }
+        LOGGER.info("用户<"+request.getUsername()+">*退出*成功！");
+        return Builder.build(true);
+    }
+
+    @RequestMapping("/pub/login")
+    public RestfulResponse login(AccountReq request) {
+        if(StringUtils.isEmpty(request.getUsername()) || StringUtils.isEmpty(request.getPassword())){
+            return Builder.build(false, "参数不能为空");
+        }
+        String username = AppConfigurer.getProperty("console.username", "admin");
+        String password;
+        if(username.equals(request.getUsername())){
+            password = PasswordUtil.encode(AppConfigurer.getProperty("console.password"));
+        } else {
+            Account acc = appContext.getBackendAccountAccess().selectOne(request);
+            if(acc == null){
+                return Builder.build(false, "该账户不存在");
+            } else {
+                username = acc.getUsername();
+                password = acc.getPassword();
+            }
+        }
+        if(!password.equals(request.getPassword())){
+            return Builder.build(false, "密码错误");
+        }
+        LOGGER.info("用户<"+request.getUsername()+">登录成功！");
+        RestfulResponse response = new RestfulResponse();
+        List<String> auth = new ArrayList<String>();
+        auth.add(PasswordUtil.getAuthorization(username, password));
+        response.setRows(auth);
+        response.setResults(1);
+        response.setSuccess(true);
+        response.setMsg("登录成功");
+        return response;
+    }
+
     @RequestMapping("/safe/modify-password")
     public RestfulResponse modifyPassword(AccountReq request) {
         if(request ==null || request.getPassword().isEmpty() || request.getId() <= 0)
             return Builder.build(false,"id和password为必填！");
 
         Account account = appContext.getBackendAccountAccess().selectOne(request);
-        if(!account.getPassword().equals(request.getOldPassword())){
+        if(!PasswordUtil.conformPassword(request.getOldPassword(), account.getPassword())){
             return Builder.build(false, "原密码不正确！");
         }
+
+        request.setPassword(PasswordUtil.encode(request.getPassword()));
 
         boolean isOk = appContext.getBackendAccountAccess().modifyInfoById(request);
         if(!isOk) {
@@ -125,7 +189,7 @@ public class SafeAuthorityApi extends AbstractMVC {
         //验证是否存在该帐号
         Account account = new Account();
         account.setUsername(request.getUsername());
-        account.setPassword(request.getPassword());
+        account.setPassword(PasswordUtil.encode(request.getPassword()));
         account.setEmail(request.getEmail());
         //依托于id、username 进行删除，这两个在库表中都是唯一的
         appContext.getBackendAccountAccess().insert(Collections.singletonList(account));

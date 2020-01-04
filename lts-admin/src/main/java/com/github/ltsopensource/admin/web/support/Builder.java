@@ -7,7 +7,6 @@ import com.github.ltsopensource.admin.web.vo.RestfulResponse;
  */
 public class Builder {
 
-
     public static RestfulResponse build(boolean success, String msg) {
         RestfulResponse response = new RestfulResponse();
         response.setSuccess(success);
