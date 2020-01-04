@@ -13,7 +13,7 @@
     <groupId>com.github.ltsopensource</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.7.2-SNAPSHOT</version>
+    <version>1.7.2</version>
     <url>https://github.com/owen-jia/lts-parent.git</url>
 
     <modules>
