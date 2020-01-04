@@ -18,7 +18,7 @@ LTS 有主要有以下四种节点：
 * JobTracker：负责接收并分配任务，任务调度。
 * TaskTracker：负责执行任务，执行完反馈给JobTracker。
 * LTS-Monitor：主要负责收集各个节点的监控信息，包括任务监控信息，节点JVM监控信息
-* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理等。
+* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理，权限管理等。
 
 其中JobClient，JobTracker，TaskTracker节点都是`无状态`的。
 可以部署多个并动态的进行删减，来实现负载均衡，实现更大的负载量, 并且框架采用FailStore策略使LTS具有很好的容错能力。 
