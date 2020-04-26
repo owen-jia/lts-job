@@ -1,8 +1,7 @@
 # LTS用户文档
 LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持实时任务，定时任务和Cron任务。有较好的伸缩性，扩展性，健壮稳定性而被多家公司使用，同时也希望开源爱好者一起贡献。
 
-> 欢迎更多人加入一起维护  
-> 请联系我（QQ：1185711879）    
+> 欢迎更多人加入一起维护。QQ群：806620585  
 
 ## 主要功能
 
@@ -35,7 +34,7 @@ LTS支持任务类型：
 支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
 
 ## 架构图
-![LTS architecture](docs/LTS_architecture.png)
+![LTS architecture](./docs/LTS_architecture.png)
 
 * Registry： 注册中心，LTS提供多种实现，目前支持zookeeper（推荐）和redis, 主要用于LTS的节点信息暴露和master节点选举。
 
@@ -64,10 +63,10 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
-![LTS progress](docs/LTS_progress.png)
+![LTS progress](./docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
-![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
+![sss](./docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
 
 请参考lts-admin使用文档（待修订）
 
@@ -416,10 +415,6 @@ public class Application {
 
 ## SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
-
-## 在线文档
-
-[点击查看](https://qq254963746.gitbooks.io/lts/content/introduce.html)
 
 ## 版本开发计划
 
