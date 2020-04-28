@@ -4,6 +4,7 @@ package com.github.ltsopensource.biz.logger.mongo;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
@@ -34,6 +35,13 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId,taskTrackerNodeGroup");
             template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
         }
+    }
+
+    @Override
+    public Long maxId() {
+        Query<JobLogPo> query = template.createQuery(JobLogPo.class);
+        Long results = template.getCount(query);
+        return results;
     }
 
     @Override
@@ -92,4 +100,8 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         return timestamp.getTime();
     }
 
+    @Override
+    public LogPoBackupResult backup() {
+        return null;
+    }
 }

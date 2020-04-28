@@ -3,10 +3,10 @@ package com.github.ltsopensource.biz.logger;
 import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
-import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
@@ -141,6 +141,11 @@ public class LazyJobLogger implements JobLogger {
     }
 
     @Override
+    public Long maxId() {
+        return this.delegate.maxId();
+    }
+
+    @Override
     public void log(JobLogPo jobLogPo) {
         if (jobLogPo == null) {
             return;
@@ -168,4 +173,8 @@ public class LazyJobLogger implements JobLogger {
         return delegate.search(request);
     }
 
+    @Override
+    public LogPoBackupResult backup() {
+        return delegate.backup();
+    }
 }

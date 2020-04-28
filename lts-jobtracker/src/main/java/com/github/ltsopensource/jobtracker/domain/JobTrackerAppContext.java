@@ -1,5 +1,6 @@
 package com.github.ltsopensource.jobtracker.domain;
 
+import com.github.ltsopensource.biz.logger.JobLogBackup;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.remoting.RemotingServerDelegate;
@@ -38,6 +39,7 @@ public class JobTrackerAppContext extends AppContext {
     private OldDataHandler oldDataHandler;
     // biz logger
     private JobLogger jobLogger;
+    private JobLogBackup jobLogBackup;
 
     // executable job queue（waiting for exec）
     private ExecutableJobQueue executableJobQueue;
@@ -88,6 +90,14 @@ public class JobTrackerAppContext extends AppContext {
 
     public void setJobLogger(JobLogger jobLogger) {
         this.jobLogger = jobLogger;
+    }
+
+    public JobLogBackup getJobLogBackup() {
+        return jobLogBackup;
+    }
+
+    public void setJobLogBackup(JobLogBackup jobLogBackup) {
+        this.jobLogBackup = jobLogBackup;
     }
 
     public JobFeedbackQueue getJobFeedbackQueue() {

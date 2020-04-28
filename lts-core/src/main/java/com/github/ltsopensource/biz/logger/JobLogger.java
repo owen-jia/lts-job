@@ -1,8 +1,9 @@
 package com.github.ltsopensource.biz.logger;
 
+import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
-import com.github.ltsopensource.admin.response.PaginationRsp;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 
 import java.util.List;
 
@@ -12,6 +13,10 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 3/24/15.
  */
 public interface JobLogger {
+
+    LogPoBackupResult backup();
+
+    Long maxId();
 
     public void log(JobLogPo jobLogPo);
 
