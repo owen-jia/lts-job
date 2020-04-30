@@ -9,6 +9,7 @@ import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.Callable;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -34,6 +35,8 @@ public abstract class AbstractBackupAuto {
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
 
+    private int days = 0;
+
     JobLogBackup delegate;
     JobLogger jobLogger;
 
@@ -44,13 +47,14 @@ public abstract class AbstractBackupAuto {
             this.delegate = jobLoggerFactory.getJobLogBackup(config);
             this.jobLogger = jobLoggerFactory.getJobLogger(config);
 
+            days = config.getParameter(ExtConfig.BACKUP_JOB_LOGGER_DAYS, 1);
+
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
-                    LOGGER.info("----");
                     doExce();
                 }
-            }, 10, 10, TimeUnit.MILLISECONDS);
+            }, 1, days, TimeUnit.MINUTES);
 
             NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
                 @Override
@@ -66,15 +70,19 @@ public abstract class AbstractBackupAuto {
     protected abstract void doExce();
 
     protected void doBackup(){
-        LogPoBackupResult result = this.jobLogger.backup();
-        if(result.isSuccess()){
-            JobLogPoBackup jobLogPoBackup = new JobLogPoBackup();
-            jobLogPoBackup.setDelFlag(false);
-            jobLogPoBackup.setTableName(result.getNewTableName());
-            jobLogPoBackup.setGmtCreated(DateUtils.currentTimeMillis());
-            jobLogPoBackup.setGmtModified(SystemClock.now());
+        try {
+            LogPoBackupResult result = this.jobLogger.backup();
+            if (result.isSuccess()) {
+                JobLogPoBackup jobLogPoBackup = new JobLogPoBackup();
+                jobLogPoBackup.setDelFlag(false);
+                jobLogPoBackup.setTableName(result.getNewTableName());
+                jobLogPoBackup.setGmtCreated(DateUtils.currentTimeMillis());
+                jobLogPoBackup.setGmtModified(SystemClock.now());
 
-            this.delegate.add(jobLogPoBackup);
+                this.delegate.add(jobLogPoBackup);
+            }
+        } catch (RuntimeException e){
+            LOGGER.error("log table backup is error!",e);
         }
     }
 }

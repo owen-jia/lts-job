@@ -22,16 +22,18 @@ import java.util.List;
  */
 public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
 
+    private final String sqlFilePath = "sql/mysql/lts_job_log_po.sql";
+
     public MysqlJobLogger(Config config) {
         super(config);
-        createTable(readSqlFile("sql/mysql/lts_job_log_po.sql"));
+        createTable(readSqlFile(sqlFilePath));
     }
 
     @Override
     public Long maxId() {
         Long results = new SelectSql(getSqlTemplate())
                 .select()
-                .columns("max(id)")
+                .columns("COUNT(*)")
                 .from()
                 .table(getTableName())
                 .single();
@@ -171,10 +173,13 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
         String flag = DateUtils.formatDate(new Date(), "yyyy_MM_dd");
         String orgName = getTableName();
         String newName = orgName + "_" + flag;
-        boolean alterState = new AlterSql(getSqlTemplate()).rename(orgName, newName).doAlter();
+
+        boolean alterState = new AlterTableSql(getSqlTemplate()).rename(orgName, newName).doAlter();
         if(alterState) {
             result.setNewTableName(newName);
             result.setSuccess(true);
+
+            createTable(readSqlFile(sqlFilePath));
             return result;
         }
         result.setSuccess(false);

@@ -3,6 +3,8 @@ package com.github.ltsopensource.biz.logger.backup;
 import com.github.ltsopensource.biz.logger.JobLogBackup;
 import com.github.ltsopensource.biz.logger.domain.JobLogPoBackup;
 import com.github.ltsopensource.core.AppContext;
+import com.github.ltsopensource.core.cluster.Config;
+import com.github.ltsopensource.core.constant.ExtConfig;
 
 import java.util.List;
 
@@ -15,16 +17,19 @@ import java.util.List;
  */
 public class CountBackupAuto extends AbstractBackupAuto implements JobLogBackup{
 
-    int defaultRowCount = 2;//200W记录
+    private int defaultRowCount;
 
     public CountBackupAuto(AppContext appContext) {
         super(appContext);
+        Config config = appContext.getConfig();
+        defaultRowCount = config.getParameter(ExtConfig.BACKUP_JOB_LOGGER_SUM_MAXIMUM, 200) * 10000;
     }
 
     @Override
     protected void doExce() {
         Long rowCount = this.jobLogger.maxId();
-        if(rowCount > defaultRowCount){
+
+        if(rowCount != null && rowCount > defaultRowCount){
             doBackup();
         }
     }

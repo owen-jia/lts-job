@@ -10,16 +10,16 @@ import com.github.ltsopensource.store.jdbc.exception.JdbcException;
  * @author: Owen Jia
  * @time: 2020/4/28 15:56
  */
-public class AlterSql {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AlterSql.class);
+public class AlterTableSql {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlterTableSql.class);
     private SqlTemplate sqlTemplate;
     private StringBuilder sql = new StringBuilder();
 
-    public AlterSql(SqlTemplate sqlTemplate) {
+    public AlterTableSql(SqlTemplate sqlTemplate) {
         this.sqlTemplate = sqlTemplate;
     }
 
-    public AlterSql rename(String orgName,String tagName){
+    public AlterTableSql rename(String orgName, String tagName){
         sql.append("ALTER TABLE ").append(orgName).append(" RENAME ").append(tagName);
         return this;
     }

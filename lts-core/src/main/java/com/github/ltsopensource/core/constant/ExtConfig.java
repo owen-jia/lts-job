@@ -5,6 +5,10 @@ package com.github.ltsopensource.core.constant;
  */
 public interface ExtConfig {
 
+    //日志表备份周期
+    String BACKUP_JOB_LOGGER_DAYS = "backup.job.logger.days";
+    //备份日志表临界量
+    String BACKUP_JOB_LOGGER_SUM_MAXIMUM = "backup.job.logger.maximum";
     // 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失) , 默认关闭
     String LAZY_JOB_LOGGER = "lazy.job.logger";
     // 延迟批量刷盘日志 内存中的最大日志量阀值
