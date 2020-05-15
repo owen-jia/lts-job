@@ -192,6 +192,13 @@ public class JobQueueApi extends AbstractMVC {
         return response;
     }
 
+    @RequestMapping("/job-logger/job-table-del")
+    public RestfulResponse jobBakTableDel(JobLoggerRequest request){
+        RestfulResponse response = new RestfulResponse();
+        //删除历史表
+        return response;
+    }
+
     /**
      * 给JobTracker发消息 加载任务到内存
      */
