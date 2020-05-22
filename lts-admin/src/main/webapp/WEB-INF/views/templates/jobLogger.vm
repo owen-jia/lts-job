@@ -21,21 +21,16 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">历史日志</label>
                             <div class="col-sm-3">
-                                <select class="form-control selectpicker" name="taskTrackerNodeGroup">
-                                    <option value="">-- 默认当前最新表 --</option>
-                                    <option value="1">-- 2020-05-15前 --</option>
-                                    #foreach ($nodeGroup in $taskTrackerNodeGroupsAll)
-                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
-                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
-                                        #else
-                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
-                                        #end
+                                <select class="form-control selectpicker" name="logTableBackup">
+                                    <option value="">-- 默认|当前最新表 --</option>
+                                    #foreach ($logTable in $logTableBackups)
+                                        <option value="$logTable.tableName">$logTable.tableName</option>
                                     #end
                                 </select>
                             </div>
                             <div class="col-sm-3">
-                                <button class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="只能删除历史表">删除</button>
-                                <label style="color: red;">只能删除历史表！不可恢复！</label>
+                                <button class="btn btn-warning" id="deleteBtn" data-toggle="tooltip" data-placement="top" title="只能删除历史表">删除</button>
+                                <label style="color: red;">只能删除历史表！</label>
                             </div>
                         </div>
                         <div class="form-group">
@@ -217,6 +212,8 @@
 <script>
     $(document).ready(function () {
 
+        $('.selectpicker').selectpicker();
+
         var LOG_TYPE = {
             RECEIVE: '接受任务',
             SENT: '派发任务',
@@ -242,12 +239,38 @@
             templateId: 'ltstable'
         });
 
+        $(document).on("click", "#deleteBtn", function () {
+            var logTableBackup = $("select[name='logTableBackup']").val();
+
+            if (!logTableBackup || logTableBackup == "") {
+                sweetAlert("请选择历史日志表", "只能删除历史日志表", "error");
+                return;
+            }
+
+            var params = {
+                histroyTableName: logTableBackup
+            };
+            $.ajax({
+                url: 'api/job-logger/job-table-del',
+                type: 'POST',
+                dataType: 'json',
+                data: params,
+                success: function (json) {
+                    if (json && json.success) {
+                        swal('删除成功');
+                        $("select[name='logTableBackup']").find('[value="'+logTableBackup+'"]').remove();
+                        $("select[name='logTableBackup']").selectpicker('refresh');
+                    } else {
+                        if (json) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+        });
+
         $(document).on("click", "#searchBtn", function () {
             var realTaskId = $("input[name='realTaskId']").val();
-//            if (!taskId) {
-//                sweetAlert("请输入任务ID", "请输入你提交的任务ID(TaskId)", "error");
-//                return;
-//            }
             var taskTrackerNodeGroup = $("select[name='taskTrackerNodeGroup']").val();
             var logType = $("select[name='logType']").val();
             var logLevel = $("select[name='logLevel']").val();
@@ -276,7 +299,10 @@
                 return;
             }
 
+            var logTableBackup = $("select[name='logTableBackup']").val();
+
             var params = {
+                histroyTableName: logTableBackup,
                 realTaskId: realTaskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
                 logType: logType,
@@ -284,7 +310,6 @@
                 success: success,
                 startLogTime: startLogTime, endLogTime: endLogTime
             };
-
             ltsTable.post(params, 1);
         });
 

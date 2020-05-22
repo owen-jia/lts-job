@@ -132,7 +132,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .select()
                 .columns("count(1)")
                 .from()
-                .table(getTableName())
+                .table(getTableName(request.getHistroyTableName()))
                 .whereSql(buildWhereSql(request))
                 .single();
         response.setResults(results.intValue());
@@ -144,7 +144,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .select()
                 .all()
                 .from()
-                .table(getTableName())
+                .table(getTableName(request.getHistroyTableName()))
                 .whereSql(buildWhereSql(request))
                 .orderBy()
                 .column("log_time", OrderByType.DESC)
@@ -184,6 +184,11 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
         }
         result.setSuccess(false);
         return result;
+    }
+
+    private String getTableName(String historyName){
+        if(historyName == null || historyName.length() < 15) return getTableName();
+        else return historyName;
     }
 
     private String getTableName() {

@@ -3,6 +3,7 @@ package com.github.ltsopensource.admin.cluster;
 import com.github.ltsopensource.admin.access.face.*;
 import com.github.ltsopensource.admin.access.memory.NodeMemCacheAccess;
 import com.github.ltsopensource.admin.web.support.NoRelyJobGenerator;
+import com.github.ltsopensource.biz.logger.JobLogBackup;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Node;
@@ -21,6 +22,7 @@ public class BackendAppContext extends AppContext {
     private SuspendJobQueue suspendJobQueue;
     private NodeGroupStore nodeGroupStore;
     private JobLogger jobLogger;
+    private JobLogBackup jobLogBackup;
     private Node node;
 
     private BackendJobClientMAccess backendJobClientMAccess;
@@ -109,6 +111,14 @@ public class BackendAppContext extends AppContext {
 
     public void setJobLogger(JobLogger jobLogger) {
         this.jobLogger = jobLogger;
+    }
+
+    public JobLogBackup getJobLogBackup() {
+        return jobLogBackup;
+    }
+
+    public void setJobLogBackup(JobLogBackup jobLogBackup) {
+        this.jobLogBackup = jobLogBackup;
     }
 
     public BackendJobClientMAccess getBackendJobClientMAccess() {

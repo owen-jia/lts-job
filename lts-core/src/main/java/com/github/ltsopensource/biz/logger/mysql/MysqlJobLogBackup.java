@@ -3,6 +3,7 @@ package com.github.ltsopensource.biz.logger.mysql;
 import com.github.ltsopensource.biz.logger.JobLogBackup;
 import com.github.ltsopensource.biz.logger.domain.JobLogPoBackup;
 import com.github.ltsopensource.core.cluster.Config;
+import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.mysql.support.RshHolder;
 import com.github.ltsopensource.store.jdbc.JdbcAbstractAccess;
 import com.github.ltsopensource.store.jdbc.builder.*;
@@ -63,12 +64,13 @@ public class MysqlJobLogBackup extends JdbcAbstractAccess implements JobLogBacku
 
     @Override
     public boolean remove(String tableName) {
-        return new DeleteSql(getSqlTemplate())
-                .delete()
-                .from()
+        return new UpdateSql(getSqlTemplate())
+                .update()
                 .table(getTableName())
+                .set("del_flag", 1)
+                .set("gmt_modified",SystemClock.now())
                 .where("table_name = ?", tableName)
-                .doDelete() == 1;
+                .doUpdate() == 1;
     }
 
     private String getTableName() {

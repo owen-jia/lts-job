@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public class JobLoggerRequest extends PaginationReq {
 
+    private String histroyTableName;
+
     private String realTaskId;
     private String taskId;
 
@@ -24,6 +26,14 @@ public class JobLoggerRequest extends PaginationReq {
     private Date startLogTime;
 
     private Date endLogTime;
+
+    public String getHistroyTableName() {
+        return histroyTableName;
+    }
+
+    public void setHistroyTableName(String histroyTableName) {
+        this.histroyTableName = histroyTableName;
+    }
 
     public String getRealTaskId() {
         return realTaskId;

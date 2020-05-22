@@ -2,6 +2,7 @@ package com.github.ltsopensource.admin.web.view;
 
 import com.github.ltsopensource.admin.access.domain.Account;
 import com.github.ltsopensource.admin.request.AccountReq;
+import com.github.ltsopensource.biz.logger.domain.JobLogPoBackup;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
@@ -66,6 +67,9 @@ public class CommonView extends AbstractView {
         }
         model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(endLogTime));
         setAttr(model);
+
+        List<JobLogPoBackup> jobLogPoBackups = appContext.getJobLogBackup().findAll();
+        model.addAttribute("logTableBackups", jobLogPoBackups);
         return "jobLogger";
     }
 

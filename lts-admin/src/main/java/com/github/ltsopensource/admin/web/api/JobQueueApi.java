@@ -23,6 +23,8 @@ import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.domain.Pair;
 import com.github.ltsopensource.core.json.JSON;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.CronExpression;
 import com.github.ltsopensource.queue.domain.JobPo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ import java.util.Map;
 @RestController
 public class JobQueueApi extends AbstractMVC {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CronJobQueueApi.class);
     @Autowired
     private BackendAppContext appContext;
 
@@ -196,6 +199,9 @@ public class JobQueueApi extends AbstractMVC {
     public RestfulResponse jobBakTableDel(JobLoggerRequest request){
         RestfulResponse response = new RestfulResponse();
         //删除历史表
+        String tName = request.getHistroyTableName();
+        response.setSuccess(appContext.getJobLogBackup().remove(tName));
+        LOGGER.info("日志历史表{}删除成功！",tName);
         return response;
     }
 
