@@ -251,4 +251,21 @@ public class Base64 {
 
         return dArr;
     }
+
+    public static final String encode(byte[] binaryData) {
+        return new String(java.util.Base64.getEncoder().encode(binaryData));
+    }
+
+    public final static byte[] decode(String s){
+        return java.util.Base64.getDecoder().decode(s.getBytes());
+    }
+
+    /**
+     * 暂未实现
+     * @param s
+     * @return
+     */
+    public final static byte[] decode(char[] s){
+        return null;
+    }
 }
