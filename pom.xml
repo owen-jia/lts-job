@@ -29,6 +29,7 @@
     </modules>
 
     <properties>
+        <java.version>1.8</java.version>
         <jedis.version>2.7.3</jedis.version>
         <fastjson.version>1.2.25</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
@@ -286,8 +287,8 @@
                     <plugin>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
