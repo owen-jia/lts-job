@@ -29,11 +29,6 @@
     </modules>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <java.version>1.8</java.version>
-
         <jedis.version>2.7.3</jedis.version>
         <fastjson.version>1.2.25</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
@@ -291,9 +286,9 @@
                     <plugin>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                            <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -322,9 +317,9 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                            <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
                     <!-- Source -->
