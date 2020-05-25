@@ -18,6 +18,7 @@
                 </div>
                 <div class="ibox-content">
                     <form method="post" class="form-horizontal" onsubmit="return false">
+                        #if( $!authority )
                         <div class="form-group">
                             <label class="col-sm-2 control-label">历史日志</label>
                             <div class="col-sm-3">
@@ -33,6 +34,7 @@
                                 <label style="color: red;">只能删除历史表！</label>
                             </div>
                         </div>
+                        #end
                         <div class="form-group">
                             <label class="col-sm-2 control-label">任务ID</label>
 
