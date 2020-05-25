@@ -4,17 +4,17 @@ import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.queue.mysql.support.RshHolder;
 import com.github.ltsopensource.store.jdbc.JdbcAbstractAccess;
-import com.github.ltsopensource.store.jdbc.builder.InsertSql;
-import com.github.ltsopensource.store.jdbc.builder.OrderByType;
-import com.github.ltsopensource.store.jdbc.builder.SelectSql;
-import com.github.ltsopensource.store.jdbc.builder.WhereSql;
+import com.github.ltsopensource.store.jdbc.builder.*;
 import com.github.ltsopensource.store.jdbc.dbutils.JdbcTypeUtils;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,9 +22,22 @@ import java.util.List;
  */
 public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
 
+    private final String sqlFilePath = "sql/mysql/lts_job_log_po.sql";
+
     public MysqlJobLogger(Config config) {
         super(config);
-        createTable(readSqlFile("sql/mysql/lts_job_log_po.sql"));
+        createTable(readSqlFile(sqlFilePath));
+    }
+
+    @Override
+    public Long maxId() {
+        Long results = new SelectSql(getSqlTemplate())
+                .select()
+                .columns("COUNT(*)")
+                .from()
+                .table(getTableName())
+                .single();
+        return results;
     }
 
     @Override
@@ -119,7 +132,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .select()
                 .columns("count(1)")
                 .from()
-                .table(getTableName())
+                .table(getTableName(request.getHistroyTableName()))
                 .whereSql(buildWhereSql(request))
                 .single();
         response.setResults(results.intValue());
@@ -131,7 +144,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .select()
                 .all()
                 .from()
-                .table(getTableName())
+                .table(getTableName(request.getHistroyTableName()))
                 .whereSql(buildWhereSql(request))
                 .orderBy()
                 .column("log_time", OrderByType.DESC)
@@ -152,6 +165,30 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .andOnNotEmpty("success = ?", request.getSuccess())
                 .andBetween("log_time", JdbcTypeUtils.toTimestamp(request.getStartLogTime()), JdbcTypeUtils.toTimestamp(request.getEndLogTime()))
                 ;
+    }
+
+    @Override
+    public LogPoBackupResult backup() {
+        LogPoBackupResult result = new LogPoBackupResult();
+        String flag = DateUtils.formatDate(new Date(), "yyyy_MM_dd");
+        String orgName = getTableName();
+        String newName = orgName + "_" + flag;
+
+        boolean alterState = new AlterTableSql(getSqlTemplate()).rename(orgName, newName).doAlter();
+        if(alterState) {
+            result.setNewTableName(newName);
+            result.setSuccess(true);
+
+            createTable(readSqlFile(sqlFilePath));
+            return result;
+        }
+        result.setSuccess(false);
+        return result;
+    }
+
+    private String getTableName(String historyName){
+        if(historyName == null || historyName.length() < 15) return getTableName();
+        else return historyName;
     }
 
     private String getTableName() {

@@ -7,6 +7,7 @@ import com.github.ltsopensource.admin.cluster.BackendNode;
 import com.github.ltsopensource.admin.cluster.BackendRegistrySrv;
 import com.github.ltsopensource.admin.web.support.NoRelyJobGenerator;
 import com.github.ltsopensource.biz.logger.SmartJobLogger;
+import com.github.ltsopensource.biz.logger.backup.CountBackupAuto;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.commons.utils.BeanUtils;
@@ -104,6 +105,7 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         appContext.setJobFeedbackQueue(factory.getJobFeedbackQueue(config));
         appContext.setNodeGroupStore(factory.getNodeGroupStore(config));
         appContext.setJobLogger(new SmartJobLogger(appContext));
+        appContext.setJobLogBackup(new CountBackupAuto(appContext));
         appContext.setNoRelyJobGenerator(new NoRelyJobGenerator(appContext));
     }
 

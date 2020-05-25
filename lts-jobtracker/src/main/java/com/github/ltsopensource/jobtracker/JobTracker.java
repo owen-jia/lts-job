@@ -1,6 +1,7 @@
 package com.github.ltsopensource.jobtracker;
 
 import com.github.ltsopensource.biz.logger.SmartJobLogger;
+import com.github.ltsopensource.biz.logger.backup.CountBackupAuto;
 import com.github.ltsopensource.core.cluster.AbstractServerNode;
 import com.github.ltsopensource.core.spi.ServiceLoader;
 import com.github.ltsopensource.jobtracker.channel.ChannelManager;
@@ -51,7 +52,10 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
         // injectRemotingServer
         appContext.setRemotingServer(remotingServer);
+
+        //biz log
         appContext.setJobLogger(new SmartJobLogger(appContext));
+        appContext.setJobLogBackup(new CountBackupAuto(appContext));
 
         JobQueueFactory factory = ServiceLoader.load(JobQueueFactory.class, config);
 

@@ -215,7 +215,7 @@ public abstract class AbstractPreLoader implements PreLoader {
             // 触发加载的请求
             if (!LOAD_SIGNAL.contains(taskTrackerNodeGroup)) {
                 LOAD_SIGNAL.add(taskTrackerNodeGroup);
-                doLoad();
+                //doLoad();
             }
         }
         JobPo jobPo = queue.poll();

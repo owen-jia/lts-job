@@ -1,10 +1,11 @@
 package com.github.ltsopensource.biz.logger.console;
 
+import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.json.JSON;
-import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 
@@ -16,6 +17,11 @@ import java.util.List;
 public class ConsoleJobLogger implements JobLogger {
 
     private Logger LOGGER = LoggerFactory.getLogger(ConsoleJobLogger.class.getSimpleName());
+
+    @Override
+    public Long maxId() {
+        throw new UnsupportedOperationException("Console logger dose not support this operation!");
+    }
 
     @Override
     public void log(JobLogPo jobLogPo) {
@@ -34,4 +40,8 @@ public class ConsoleJobLogger implements JobLogger {
         throw new UnsupportedOperationException("Console logger dose not support this operation!");
     }
 
+    @Override
+    public LogPoBackupResult backup() {
+        return null;
+    }
 }

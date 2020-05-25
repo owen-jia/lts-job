@@ -1,6 +1,7 @@
 package com.github.ltsopensource.queue.mysql.support;
 
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
+import com.github.ltsopensource.biz.logger.domain.JobLogPoBackup;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
@@ -33,6 +34,22 @@ public class RshHolder {
                 return null;
             }
             return getJobPo(rs);
+        }
+    };
+
+    public static final ResultSetHandler<List<JobLogPoBackup>> JOB_PO_BACKUP_LIST_RSH = new ResultSetHandler<List<JobLogPoBackup>>() {
+        @Override
+        public List<JobLogPoBackup> handle(ResultSet rs) throws SQLException {
+            List<JobLogPoBackup> jobLogBackups = new ArrayList<JobLogPoBackup>();
+            while (rs.next()) {
+                JobLogPoBackup backup = new JobLogPoBackup();
+                backup.setTableName(rs.getString("table_name"));
+                backup.setDelFlag(rs.getBoolean("del_flag"));
+                backup.setGmtCreated(rs.getLong("gmt_created"));
+                backup.setGmtModified(rs.getLong("gmt_modified"));
+                jobLogBackups.add(backup);
+            }
+            return jobLogBackups;
         }
     };
 

@@ -3,6 +3,7 @@ package com.github.ltsopensource.biz.logger;
 import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
+import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.constant.ExtConfig;
@@ -31,6 +32,11 @@ public class SmartJobLogger implements JobLogger {
     }
 
     @Override
+    public Long maxId() {
+        return this.delegate.maxId();
+    }
+
+    @Override
     public void log(JobLogPo jobLogPo) {
         this.delegate.log(jobLogPo);
     }
@@ -43,5 +49,10 @@ public class SmartJobLogger implements JobLogger {
     @Override
     public PaginationRsp<JobLogPo> search(JobLoggerRequest request) {
         return this.delegate.search(request);
+    }
+
+    @Override
+    public LogPoBackupResult backup() {
+        return delegate.backup();
     }
 }

@@ -65,7 +65,7 @@ public class Base64 {
 
     /**
      * Decodes a BASE64 encoded char array that is known to be resonably well formatted. The method is about twice as
-     * fast as {@link # decode(char[])}. The preconditions are:<br>
+     * fast as {@link #decode(char[])}. The preconditions are:<br>
      * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
@@ -186,7 +186,7 @@ public class Base64 {
 
     /**
      * Decodes a BASE64 encoded string that is known to be resonably well formatted. The method is about twice as fast
-     * as {@link # decode(String)}. The preconditions are:<br>
+     * as {@link #decode(String)}. The preconditions are:<br>
      * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
      * + Line separator must be "\r\n", as specified in RFC 2045 + The array must not contain illegal characters within
      * the encoded string<br>
@@ -252,14 +252,20 @@ public class Base64 {
         return dArr;
     }
 
-    /**
-     *
-     * @param binaryData
-     * @return
-     */
-    public final static String encode(byte[] binaryData){
-        byte[] temp = java.util.Base64.getEncoder().encode(binaryData);
-        return new String(temp);
+    public static final String encode(byte[] binaryData) {
+        return new String(java.util.Base64.getEncoder().encode(binaryData));
     }
 
+    public final static byte[] decode(String s){
+        return java.util.Base64.getDecoder().decode(s.getBytes());
+    }
+
+    /**
+     * 暂未实现
+     * @param s
+     * @return
+     */
+    public final static byte[] decode(char[] s){
+        return null;
+    }
 }

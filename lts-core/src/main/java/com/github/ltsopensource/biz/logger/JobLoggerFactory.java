@@ -12,4 +12,5 @@ public interface JobLoggerFactory {
 
     JobLogger getJobLogger(Config config);
 
+    JobLogBackup getJobLogBackup(Config config);
 }

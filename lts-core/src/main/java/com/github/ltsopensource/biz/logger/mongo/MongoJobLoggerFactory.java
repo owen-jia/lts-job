@@ -1,5 +1,6 @@
 package com.github.ltsopensource.biz.logger.mongo;
 
+import com.github.ltsopensource.biz.logger.JobLogBackup;
 import com.github.ltsopensource.biz.logger.JobLogger;
 import com.github.ltsopensource.biz.logger.JobLoggerFactory;
 import com.github.ltsopensource.core.cluster.Config;
@@ -11,5 +12,10 @@ public class MongoJobLoggerFactory implements JobLoggerFactory {
     @Override
     public JobLogger getJobLogger(Config config) {
         return new MongoJobLogger(config);
+    }
+
+    @Override
+    public JobLogBackup getJobLogBackup(Config config) {
+        return null;
     }
 }

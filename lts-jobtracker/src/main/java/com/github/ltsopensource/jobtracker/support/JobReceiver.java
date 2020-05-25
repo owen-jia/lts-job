@@ -97,7 +97,7 @@ public class JobReceiver {
                 code = success ? BizLogCode.DUP_REPLACE : BizLogCode.DUP_FAILED;
             } else {
                 code = BizLogCode.DUP_IGNORE;
-                LOGGER.info("Job already exist And ignore. nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.warn("Job already exist And ignore. nodeGroup={}, {}", request.getNodeGroup(), job);
             }
         } finally {
             if (success) {
