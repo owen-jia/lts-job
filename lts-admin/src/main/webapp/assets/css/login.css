@@ -49,9 +49,13 @@ body > .container {
 }
 .navbar-default {
     background-color: #333;
+    padding: 5px;
 }
 .navbar-default .navbar-brand{
     color: #fff;
+}
+.navbar-brand{
+    font-size: x-large;
 }
 .footer {
     position: absolute;
