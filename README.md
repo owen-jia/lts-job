@@ -50,11 +50,11 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 
 ## 概念说明
 
-###节点组
+### 节点组
 1. 英文名称 NodeGroup,一个节点组等同于一个小的集群，同一个节点组中的各个节点是对等的，等效的，对外提供相同的服务。
 2. 每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
 
-###FailStore
+### FailStore
 1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
 2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
 3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
@@ -63,14 +63,16 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
-![LTS progress](./docs/LTS_progress.png)
+![LTS progress](docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
-![sss](./docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
 
-请参考lts-admin使用文档（待修订）
+![sss](docs/LTS-Admin/lts-admin-login.png)
+
+![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
 
 ## 特性
+
 ### 1、Spring支持
 LTS可以完全不用Spring框架，但是考虑到很用用户项目中都是用了Spring框架，所以LTS也提供了对Spring的支持，包括Xml和注解，引入`lts-spring.jar`即可。
 
@@ -85,8 +87,10 @@ SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即�
 
 ### 4、故障转移
 当正在执行任务的TaskTracker宕机之后，JobTracker会立马将分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
+
 ### 5、节点监控
 可以对JobTracker，TaskTracker节点进行资源监控，任务监控等，可以实时的在LTS-Admin管理后台查看，进而进行合理的资源调配。
+
 ### 6、多样化任务执行结果支持
 LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`，`EXECUTE_LATER`，`EXECUTE_EXCEPTION`，并对每种结果采取相应的处理机制，譬如重试。
 
@@ -103,8 +107,10 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 环境依赖：`Java(jdk1.6+)` `Maven`
 
 用户使用一般分为两种：
+
 ### 1、Maven构建
 可以通过maven命令将lts的jar包上传到本地仓库中。在父pom.xml中添加相应的repository，并用deploy命令上传即可。具体引用方式可以参考lts中的例子即可。
+
 ### 2、直接Jar引用
 需要将lts的各个模块打包成单独的jar包，并且将所有lts依赖包引入。具体引用哪些jar包可以参考lts中的例子即可。
 
@@ -168,7 +174,7 @@ job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
 // job.setTriggerTime(new Date()); // 支持指定时间执行
 Response response = jobClient.submitJob(job);
 ```
-    
+
 ### Spring XML方式启动
 ```java
 <bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
@@ -191,6 +197,7 @@ Response response = jobClient.submitJob(job);
     </property>
 </bean>
 ```    
+
 ### Spring 全注解方式
 ```java
 @Configuration
@@ -213,8 +220,10 @@ public class LTSSpringConfig {
     }
 }
 ```
+
 ## TaskTracker(部署使用)
 需要引入lts的jar包有`lts-tasktracker-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
+
 ### 定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
@@ -232,6 +241,7 @@ public class MyJobRunner implements JobRunner {
     }
 }
 ```
+
 ### API方式启动
 ```java 
 TaskTracker taskTracker = new TaskTracker();
@@ -242,6 +252,7 @@ taskTracker.setClusterName("test_cluster");
 taskTracker.setWorkThreads(20);
 taskTracker.start();
 ```
+
 ### Spring XML方式启动
 ```java
 <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
@@ -263,6 +274,7 @@ taskTracker.start();
     </property>
 </bean>
 ```
+
 ### Spring注解方式启动
 ```java
 @Configuration
@@ -343,6 +355,7 @@ class JobRunnerB implements JobRunner {
     }
 }
 ```
+
 ## TaskTracker的JobRunner测试
 一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如[lts-examples](https://github.com/ltsopensource/lts-examples)中的例子：
 
@@ -390,8 +403,8 @@ public class TestJobRunnerTester extends JobRunnerTester {
     <property name="nodeGroup" value="quartz_test_group"/>
 </bean>
 ```
-## Spring Boot 支持
 
+## Spring Boot 支持
 ```java
 @SpringBootApplication
 @EnableJobTracker       // 启动JobTracker
@@ -417,5 +430,4 @@ public class Application {
 支持JobLogger,JobQueue等等的SPI扩展
 
 ## 版本开发计划
-
 [点击查看：work-plan](develop-plan.md)
