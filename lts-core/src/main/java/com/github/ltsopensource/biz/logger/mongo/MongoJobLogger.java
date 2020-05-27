@@ -7,25 +7,30 @@ import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
 import com.github.ltsopensource.biz.logger.domain.LogPoBackupResult;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.store.mongo.MongoRepository;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import org.mongodb.morphia.query.Query;
+import org.rocksdb.DBOptions;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * @author Robert HG (254963746@qq.com) on 3/27/15.
+ * @author Owen Jia (owen-jia@outlook.com) on 5/27/2020.
  */
 public class MongoJobLogger extends MongoRepository implements JobLogger {
 
     public MongoJobLogger(Config config) {
         super(config);
         setTableName("lts_job_log_po");
+        createTableAndIndex();
+    }
 
+    private void createTableAndIndex(){
         // create table
         DBCollection dbCollection = template.getCollection();
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
@@ -102,6 +107,18 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
 
     @Override
     public LogPoBackupResult backup() {
-        return null;
+        LogPoBackupResult result = new LogPoBackupResult();
+
+        String flag = DateUtils.formatDate(new Date(), "yyyy_MM_dd");
+        String orgName = getTableName();
+        String newName = orgName + "_" + flag;
+
+        DBCollection collection = template.getCollection();
+        collection.rename(newName);
+        setTableName(orgName);
+        createTableAndIndex();
+        result.setNewTableName(newName);
+        result.setSuccess(true);
+        return result;
     }
 }

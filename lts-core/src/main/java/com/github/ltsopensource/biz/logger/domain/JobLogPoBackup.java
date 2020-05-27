@@ -42,4 +42,14 @@ public class JobLogPoBackup {
     public void setGmtModified(Long gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+    @Override
+    public String toString() {
+        return "JobLogPoBackup{" +
+                "tableName='" + tableName + '\'' +
+                ", delFlag=" + delFlag +
+                ", gmtCreated=" + gmtCreated +
+                ", gmtModified=" + gmtModified +
+                '}';
+    }
 }

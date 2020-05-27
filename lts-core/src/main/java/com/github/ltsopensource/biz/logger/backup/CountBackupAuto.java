@@ -22,7 +22,7 @@ public class CountBackupAuto extends AbstractBackupAuto implements JobLogBackup{
     public CountBackupAuto(AppContext appContext) {
         super(appContext);
         Config config = appContext.getConfig();
-        defaultRowCount = config.getParameter(ExtConfig.BACKUP_JOB_LOGGER_SUM_MAXIMUM, 200) * 10000;
+        defaultRowCount = config.getParameter(ExtConfig.BACKUP_JOB_LOGGER_SUM_MAXIMUM, 500) * 10000;
     }
 
     @Override

@@ -16,6 +16,6 @@ public class MongoJobLoggerFactory implements JobLoggerFactory {
 
     @Override
     public JobLogBackup getJobLogBackup(Config config) {
-        return null;
+        return new MongoJobLogBackup(config);
     }
 }

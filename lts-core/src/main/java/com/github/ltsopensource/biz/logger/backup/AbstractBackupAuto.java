@@ -54,7 +54,7 @@ public abstract class AbstractBackupAuto {
                 public void run() {
                     doExce();
                 }
-            }, 1, days, TimeUnit.MINUTES);
+            }, 1, days, TimeUnit.DAYS);
 
             NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
                 @Override
