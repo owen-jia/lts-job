@@ -12,8 +12,8 @@ public class SMTPMailManagerImplTest {
         String host = "smtp.qq.com";
         // 授权码从这里获取 http://service.mail.qq.com/cgi-bin/help?subtype=1&&id=28&&no=1001256
         // lts12345
-        MailManager mailManager = new SMTPMailManagerImpl(host, "owen-jia@outlook.com", "这里是授权码", "LTS通知中心(notice@lts.com)", true);
-        mailManager.send("owen-jia-123@outlook.com", "测试", "fdsafhakdsjfladslfj呵呵呵");
+        MailManager mailManager = new SMTPMailManagerImpl(host, "owen-jia@qq.com", "这里是授权码", "LTS通知中心(notice@lts.com)", true);
+        mailManager.send("owen-jia-123@qq.com", "测试", "fdsafhakdsjfladslfj呵呵呵");
     }
 
     public void testNotifier(){
