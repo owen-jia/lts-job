@@ -65,13 +65,13 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
-![LTS progress](docs/LTS_progress.png)
+![LTS progress](https://github.com/owen-jia/lts-job/tree/develop/docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
 
-![sss](docs/LTS-Admin/lts-admin-login.png)
+![sss](./docs/LTS-Admin/lts-admin-login.png)
 
-![sss](docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
+![sss](./docs/LTS-Admin/LTS-Admin-cron-job-queue.png)
 
 ## 特性
 
@@ -122,6 +122,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 1. 运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
 
 2. 下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
+
 lts-{version}-bin的文件结构
 
 ```java
@@ -152,14 +153,15 @@ lts-{version}-bin的文件结构
         |       |-- *.jar
         |-- lts-admin.war
 
-```	    
-        
+```
+
 3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
 4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
-##JobClient（部署）使用
+## JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-###API方式启动
+
+### API方式启动
 ```java
 JobClient jobClient = new RetryJobClient();
 jobClient.setNodeGroup("test_jobClient");
