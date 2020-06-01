@@ -3,7 +3,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 > 欢迎更多人加入一起维护。QQ群：806620585  
 
-[社区研发计划1.7.3](developing.md)
+[社区研发计划1.7.3](./developing.md)
 
 ## 主要功能
 
