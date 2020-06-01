@@ -1,7 +1,10 @@
 package com.github.ltsopensource.alarm;
 
 /**
- * @author Robert HG (254963746@qq.com)  on 2/17/16.
+ * 系统能够支持的告警类型
+ * @author owen-jia 2020-06-01
  */
 public enum AlarmType {
+    EMAIL,
+    SMS;
 }

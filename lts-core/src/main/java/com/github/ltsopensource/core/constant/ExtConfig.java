@@ -223,6 +223,7 @@ public interface ExtConfig {
     String MAIL_PASSWORD = "mail.password";
     String MAIL_ADMIN_ADDR = "mail.adminAddress";
     String MAIL_SSL_ENABLED = "mail.sslEnabled";
+
     String JOB_RETRY_TIME_GENERATOR = "jobtracker.retry.time.generator";
 
     String M_STAT_REPORTER_CLOSED  = "mStatReporterClosed";
