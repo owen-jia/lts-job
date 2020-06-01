@@ -65,7 +65,7 @@ RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和
 ## 流程图
 下图是一个标准的实时任务执行流程。
 
-![LTS progress](https://github.com/owen-jia/lts-job/tree/develop/docs/LTS_progress.png)
+![LTS progress](./docs/LTS_progress.png)
 
 ## LTS-Admin新版界面预览
 
