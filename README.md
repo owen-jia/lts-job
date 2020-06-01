@@ -3,6 +3,8 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 > 欢迎更多人加入一起维护。QQ群：806620585  
 
+[社区研发计划1.7.3](./develop-plan.md)
+
 ## 主要功能
 
 1. 支持分布式，解决多点故障，支持动态扩容，容错重试等
@@ -428,6 +430,3 @@ public class Application {
 
 ## SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
-
-## 版本开发计划
-[点击查看：work-plan](develop-plan.md)
