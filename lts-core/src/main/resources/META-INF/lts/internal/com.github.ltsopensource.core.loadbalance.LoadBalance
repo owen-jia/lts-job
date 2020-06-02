@@ -1,3 +1,4 @@
 random=com.github.ltsopensource.core.loadbalance.RandomLoadBalance
 consistenthash=com.github.ltsopensource.core.loadbalance.ConsistentHashLoadBalance
 mastersalve=com.github.ltsopensource.core.loadbalance.MasterSalveLoadBalance
+roundbin=com.github.ltsopensource.core.loadbalance.RoundbinLoadBalance
