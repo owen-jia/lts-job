@@ -24,8 +24,7 @@ public class InjvmEventCenter implements EventCenter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventCenter.class.getName());
 
-    private final ConcurrentHashMap<String, Set<EventSubscriber>> ecMap =
-            new ConcurrentHashMap<String, Set<EventSubscriber>>();
+    private final ConcurrentHashMap<String, Set<EventSubscriber>> ecMap = new ConcurrentHashMap<String, Set<EventSubscriber>>();
 
     private final ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2, new NamedThreadFactory("LTS-InjvmEventCenter-Executor", true));
 
