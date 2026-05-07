@@ -392,6 +392,14 @@
 
     <developers>
         <developer>
+            <id>hugui.hg</id>
+            <name>hugui</name>
+            <email>254963746@qq.com</email>
+            <roles>
+                <role>creater</role>
+            </roles>
+        </developer>
+        <developer>
             <id>owen.jia</id>
             <name>Owen Jia</name>
             <email>owen-jia@outlook.com</email>

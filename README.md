@@ -3,7 +3,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 > 欢迎更多人加入一起维护。QQ群：806620585  
 
-[社区研发计划1.7.3](./developing.md)
+[v1.7.3规划](./developing.md)
 
 ## 主要功能
 
@@ -115,6 +115,24 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 
 ### 2、直接Jar引用
 需要将lts的各个模块打包成单独的jar包，并且将所有lts依赖包引入。具体引用哪些jar包可以参考lts中的例子即可。
+
+## 运行环境依赖（安装前准备）
+
+部署、编译运行，需要安装相关软件，**推荐版本**。
+
+| 类型 | 推荐版本                        | 说明 |
+|------|-----------------------------|------|
+| **构建：JDK** | **8**（`1.8`）                | 与当前 `maven-compiler-plugin` 目标一致；**不建议用 JDK 9+ 仅编译本仓库**（`sun.misc` 等内部 API 会报错），除非另行改造代码或工具链。 |
+| **构建：Maven** | **3.6.x～3.9.x**             | 与 `oss-parent`、各插件组合常见用法一致；过新 Maven 若告警可再按需升级插件。 |
+| **运行：JRE** | **8**（`1.8`）                | JobTracker、TaskTracker、Admin、Monitor、内嵌 JobClient 等进程均需 **JRE 8+**。 |
+| **注册中心：ZooKeeper** | 服务端 **3.4.14**（或 **3.4.x**） | 工程内 ZK 客户端为 **3.4.5**（`pom.xml` `zk.version`）；**3.5.x / 3.6.x** 多数场景可用，建议压测；**3.7+** 未在文档保证。 |
+| **注册中心：Redis** | **5.0+** 或 **6.x**（常用稳定版）   | 工程使用 **Jedis 2.7.3**（`pom.xml`）；避免依赖仅在新版 Redis 才提供的命令特性即可。 |
+| **MySQL** | 服务端 **5.7.x**（推荐）           | 与自带 SQL（`utf8mb4`、`InnoDB` 等）及当前 **`mysql-connector-java` 5.1.26** 较匹配。**8.0** 可用，但常需为账号开启 **`mysql_native_password`** 或后续升级驱动。 |
+| **MongoDB** | **3.6.x～4.4.x**（推荐自测）       | 工程使用 **mongo-java-driver 3.0.2**；与 **MongoDB 3.x / 4.x** 常见部署搭配多，**5.x+** 请自行验证驱动与协议兼容性。 |
+| **LTS-Admin 数据** | 与上表 **MySQL** 一致            | Admin 控制台数据走 MySQL；`jobT.*` 与 JobTracker 队列/日志配置须一致（见 `conf/lts-admin.cfg`）。 |
+| **数据库初始化** | —                           | MySQL 建表：`lts-core/src/main/resources/sql/mysql/`、`lts-admin/src/main/resources/sql/mysql/`、`lts-monitor/src/main/resources/sql/mysql/`（监控表，若启用）。 |
+| **（可选）告警邮件** | 任意支持 **SMTP** 的服务           | 配置 `configs.mail.*`（见 JobTracker 配置示例）。 |
+| **（可选）FailStore** | —                           | leveldb / rocksdb 等为**本机库**，无独立服务版本号；需磁盘及与 OS/CPU 匹配的 **native**（工程带 **leveldbjni / rocksdbjni** 等依赖）。 |
 
 ## JobTracker和LTS-Admin部署
 提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
