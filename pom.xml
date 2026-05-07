@@ -30,6 +30,8 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <jedis.version>2.7.3</jedis.version>
         <fastjson.version>1.2.25</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
@@ -285,7 +287,9 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
                         <configuration>
                             <source>${java.version}</source>
                             <target>${java.version}</target>
@@ -293,6 +297,7 @@
                         </configuration>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>2.2.1</version>
                         <configuration>
@@ -317,9 +322,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
                         <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
@@ -385,14 +391,6 @@
     </scm>
 
     <developers>
-        <developer>
-            <id>hugui.hg</id>
-            <name>hugui</name>
-            <email>254963746@qq.com</email>
-            <roles>
-                <role>creater</role>
-            </roles>
-        </developer>
         <developer>
             <id>owen.jia</id>
             <name>Owen Jia</name>

@@ -106,7 +106,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 
 ## 项目编译打包
 项目主要采用maven进行构建，目前提供shell脚本的打包。
-环境依赖：`Java(jdk1.6+)` `Maven`
+环境依赖：`Java(JDK 1.8)` `Maven`
 
 用户使用一般分为两种：
 
