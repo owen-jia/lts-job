@@ -4,8 +4,6 @@
 
 > 欢迎更多人参与维护与交流。QQ 群 **806620585**。版本规划与变更记录见 [docs/dev-plan.md](./docs/开发计划.md)。
 
-Maven 根工程：`com.github.ltsopensource:lts-parent`（版本见根 `pom.xml`）。
-
 ## 目录
 
 | 章节 | 说明 |
@@ -142,7 +140,7 @@ LTS 主要有以下 **五种节点角色**（其中 JobClient、JobTracker、Tas
 
 ### 2.4 分发目录与组件启动
 
-`build` 完成后，`lts-{version}-bin` 典型结构如下（以当前脚本为准；若与旧文档树形略有差异，以 `dist` 实际输出为准）：
+`build` 完成后，`lts-{version}-bin` 典型结构如下（以当前脚本为准；若与旧文档树形略有差异，以 `dist` 实际输出为准）。**Linux `*.sh`** 一般在首次 **`start`** 时创建 **`logs/`、`pid/`**；**`tmp/`** 主要由 **Admin（`lts-admin.sh`）** 指定为 **`java.io.tmpdir`**，见下表。
 
 ```text
 lts-${version}-bin
@@ -163,9 +161,19 @@ lts-${version}-bin
 │       └── lts-monitor.cfg
 ├── lib
 │   └── *.jar
+├── logs                        # 运行时：各进程标准输出/错误重定向（*.out）
+├── pid                         # 运行时：PID 文件，供 stop/restart 查找进程
+├── tmp                         # Jetty 运行 -Djava.io.tmpdir 指向此处，解压 WAR 等
 └── war
-    └── jetty/ … / lts-admin.war
+    ├── jetty/lib/              # 运行需要的jar
+    └── lts-admin.war
 ```
+
+| 目录 | 说明 |
+|------|------|
+| **`logs/`** | **Linux（`*.sh`）**：启动前 **`mkdir -p`**，后台启动时用 **nohup** 将标准输出重定向到 `logs/*.out`（如 `jobtracker-<配置目录名>.out`、`lts-admin.out`、`lts-monitor-<配置目录名>.out`、`tasktracker.out`）。**Windows（`*.cmd`）**：`jobtracker.cmd` / `lts-monitor.cmd` / `lts-admin.cmd` 会 **`md logs`**，但当前脚本多为**前台**启动 Java，**未**像 shell 版那样把输出重定向到 `.out` 文件（排障以控制台输出为主）。 |
+| **`pid/`** | **Linux（`*.sh`）**：写入 **`.pid`**（如 `jobtracker-zoo.pid`、`lts-admin.pid`），`stop` / `restart` 时读取并结束进程；**多实例**时与配置目录名一一对应。**Windows（`*.cmd`）**：当前仓库中的 cmd 脚本**未**维护 PID 文件。 |
+| **`tmp/`** | **`lts-admin.sh`** 启动 Admin 时设置 **`-Djava.io.tmpdir=$bin/../tmp`**，Jetty 解压 WAR 等会使用该目录（若尚不存在，通常由运行期创建）。**JobTracker / Monitor** 的 shell 脚本未单独改 `java.io.tmpdir`，一般为系统默认临时目录。**Windows** 的 `lts-admin.cmd` 未指定分发根下 `tmp`，使用系统环境变量中的临时目录。 |
 
 **JobTracker**
 
