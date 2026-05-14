@@ -1,3 +1,5 @@
+> **说明**：极早期 README 归档，**与现行 [README.md](../README.md) 多处不一致**；仅供历史对照。
+
 LTS 轻量级分布式任务调度框架(Light Task Scheduler)
 -----------------
 

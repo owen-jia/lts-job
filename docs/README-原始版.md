@@ -1,0 +1,457 @@
+# LTS用户文档
+
+> **归档说明**：本文件为根目录 `README.md` 在纳入文档改版前的版本快照（自 git 提交导出），**当前请以仓库根目录 `README.md` 为准**。若与现行 README 正文冲突，**一律以根目录 README 与 `pom.xml` 为准**。下文中的图片路径已按本文件位于 `docs/` 目录做了修正。
+
+---
+
+LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持实时任务，定时任务和Cron任务。有较好的伸缩性，扩展性，健壮稳定性而被多家公司使用，同时也希望开源爱好者一起贡献。
+
+> 欢迎更多人加入一起维护。QQ群：806620585  
+
+[v1.7.3规划](./developing.md)
+
+## 主要功能
+
+1. 支持分布式，解决多点故障，支持动态扩容，容错重试等
+2. Spring扩展支持，SpringBoot支持，Spring Quartz Cron任务的无缝接入支持
+3. 节点监控支持，任务执行监控支持，JVM监控支持
+4. 后台运维操作支持, 可以动态提交，更改，停止 任务
+
+## 框架概况
+LTS 有主要有以下四种节点：
+
+* JobClient：主要负责提交任务, 并接收任务执行反馈结果。
+* JobTracker：负责接收并分配任务，任务调度。
+* TaskTracker：负责执行任务，执行完反馈给JobTracker。
+* LTS-Monitor：主要负责收集各个节点的监控信息，包括任务监控信息，节点JVM监控信息
+* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理，权限管理等。
+
+其中JobClient，JobTracker，TaskTracker节点都是`无状态`的。
+可以部署多个并动态的进行删减，来实现负载均衡，实现更大的负载量, 并且框架采用FailStore策略使LTS具有很好的容错能力。 
+
+LTS注册中心提供多种实现（Zookeeper，redis等），注册中心进行节点信息暴露，master选举。(Mongo or Mysql)存储任务队列和任务执行日志, netty or mina做底层通信, 并提供多种序列化方式fastjson, hessian2, java等。
+
+LTS支持任务类型：
+
+* 实时任务：提交了之后立即就要执行的任务。
+* 定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。
+* Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?
+* Repeat任务：譬如每隔5分钟执行一次，重复50次就停止。
+
+支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
+
+## 架构图
+![LTS architecture](./LTS_architecture.png)
+
+* Registry： 注册中心，LTS提供多种实现，目前支持zookeeper（推荐）和redis, 主要用于LTS的节点信息暴露和master节点选举。
+
+* FailStore：失败存储，主要用于在部分场景远程RPC调用失败的情况，采取现存储本地KV文件系统，待远程通信恢复的时候再进行数据补偿。目前FailStore场景，主要有RetryJobClient提交**任务失败的时候，存储FailStore；TaskTracker返回任务执行结果给JobTracker的失败 时候，FailStore；TaskTracker提交BizLogger的失败的时候，存储FailStore. 目前FailStore有四种实现：leveldb，rocksdb，berkeleydb，mapdb（当然用户也可以实现扩展接口实现自己的FailStore）
+
+* QueueManager：任务队列，目前提供mysql（推荐）和mongodb两种实现（同样的用户可以自己扩容展示其他的，譬如oracle等），主要存储任务数据和任务执行日志等。
+RPC：远程RPC通信框架，目前也支持多种实现，LTS自带有netty和mina，用户可以自行选择，或者自己SPI扩展实现其他的。
+
+* NodeGroup：节点组，同一个节点组中的任何节点都是对等的，等效的，对外提供相同的服务。譬如TaskTracker中有10个nodeGroup都是send_msg的节点组，专门执行发送短信的任务。每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
+
+* ClusterName：LTS集群，就如上图所示，整个图就是一个集群，包含LTS的五种节点。
+
+
+## 概念说明
+
+### 节点组
+1. 英文名称 NodeGroup,一个节点组等同于一个小的集群，同一个节点组中的各个节点是对等的，等效的，对外提供相同的服务。
+2. 每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
+
+### FailStore
+1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
+2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
+3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
+
+
+## 流程图
+下图是一个标准的实时任务执行流程。
+
+![LTS progress](./LTS_progress.png)
+
+## LTS-Admin新版界面预览
+
+![sss](./LTS-Admin/LTS-Admin-login.png)
+
+![sss](./LTS-Admin/LTS-Admin-cron-job-queue.png)
+
+## 特性
+
+### 1、Spring支持
+LTS可以完全不用Spring框架，但是考虑到很用用户项目中都是用了Spring框架，所以LTS也提供了对Spring的支持，包括Xml和注解，引入`lts-spring.jar`即可。
+
+### 2、业务日志记录器
+在TaskTracker端提供了业务日志记录器，供应用程序使用，通过这个业务日志器，可以将业务日志提交到JobTracker，这些业务日志可以通过任务ID串联起来，可以在LTS-Admin中实时查看任务的执行进度。
+
+### 3、SPI扩展支持
+SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即可被LTS使用，目前开放出来的扩展接口有
+
+1. 对任务队列的扩展，用户可以不选择使用mysql或者mongo作为队列存储，也可以自己实现。
+2. 对业务日志记录器的扩展，目前主要支持console，mysql，mongo，用户也可以通过扩展选择往其他地方输送日志。
+
+### 4、故障转移
+当正在执行任务的TaskTracker宕机之后，JobTracker会立马将分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
+
+### 5、节点监控
+可以对JobTracker，TaskTracker节点进行资源监控，任务监控等，可以实时的在LTS-Admin管理后台查看，进而进行合理的资源调配。
+
+### 6、多样化任务执行结果支持
+LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`，`EXECUTE_LATER`，`EXECUTE_EXCEPTION`，并对每种结果采取相应的处理机制，譬如重试。
+
+* EXECUTE_SUCCESS: 执行成功,这种情况，直接反馈客户端（如果任务被设置了要反馈给客户端）。
+* EXECUTE_FAILED：执行失败，这种情况，直接反馈给客户端，不进行重试。
+* EXECUTE_LATER：稍后执行（需要重试），这种情况，不反馈客户端，重试策略采用1min，2min，3min的策略，默认最大重试次数为10次，用户可以通过参数设置修改这个重试次数。
+* EXECUTE_EXCEPTION：执行异常, 这种情况也会重试(重试策略，同上)
+
+### 7、FailStore容错
+采用FailStore机制来进行节点容错，Fail And Store，不会因为远程通信的不稳定性而影响当前应用的运行。具体FailStore说明，请参考概念说明中的FailStore说明。
+
+## 项目编译打包
+项目主要采用maven进行构建，目前提供shell脚本的打包。
+环境依赖：`Java(JDK 1.8)` `Maven`
+
+用户使用一般分为两种：
+
+### 1、Maven构建
+可以通过maven命令将lts的jar包上传到本地仓库中。在父pom.xml中添加相应的repository，并用deploy命令上传即可。具体引用方式可以参考lts中的例子即可。
+
+### 2、直接Jar引用
+需要将lts的各个模块打包成单独的jar包，并且将所有lts依赖包引入。具体引用哪些jar包可以参考lts中的例子即可。
+
+## 运行环境依赖（安装前准备）
+
+部署、编译运行，需要安装相关软件，**推荐版本**。
+
+| 类型 | 推荐版本                        | 说明 |
+|------|-----------------------------|------|
+| **构建：JDK** | **8**（`1.8`）                | 与当前 `maven-compiler-plugin` 目标一致；**不建议用 JDK 9+ 仅编译本仓库**（`sun.misc` 等内部 API 会报错），除非另行改造代码或工具链。 |
+| **构建：Maven** | **3.6.x～3.9.x**             | 与 `oss-parent`、各插件组合常见用法一致；过新 Maven 若告警可再按需升级插件。 |
+| **运行：JRE** | **8**（`1.8`）                | JobTracker、TaskTracker、Admin、Monitor、内嵌 JobClient 等进程均需 **JRE 8+**。 |
+| **注册中心：ZooKeeper** | 服务端 **3.4.14**（或 **3.4.x**） | 工程内 ZK 客户端为 **3.4.5**（`pom.xml` `zk.version`）；**3.5.x / 3.6.x** 多数场景可用，建议压测；**3.7+** 未在文档保证。 |
+| **注册中心：Redis** | **5.0+** 或 **6.x**（常用稳定版）   | 工程使用 **Jedis 2.7.3**（`pom.xml`）；避免依赖仅在新版 Redis 才提供的命令特性即可。 |
+| **MySQL** | 服务端 **5.7.x** / **8.0.x**（推荐） | 工程已升级 **`mysql-connector-java` 8.0.27**（`pom.xml` 中 `mysql.version`），**正式支持 MySQL 8.0**（含 **`caching_sha2_password`** 等默认认证方式）。自带 SQL 面向 **`utf8mb4` + InnoDB**。**JDBC URL** 建议按 Connector/J 8 惯例补充 **`serverTimezone=...`**（如 `Asia/Shanghai`）及按需的 **`useSSL`** 等；**5.6** 及更早版本未在文档保证，请自行验证。 |
+| **MongoDB** | **3.6.x～4.4.x**（推荐自测）       | 工程使用 **mongo-java-driver 3.0.2**；与 **MongoDB 3.x / 4.x** 常见部署搭配多，**5.x+** 请自行验证驱动与协议兼容性。 |
+| **LTS-Admin 数据** | 与上表 **MySQL** 一致            | Admin 控制台数据走 MySQL；`jobT.*` 与 JobTracker 队列/日志配置须一致（见 `conf/lts-admin.cfg`）。 |
+| **数据库初始化** | —                           | MySQL 建表：`lts-core/src/main/resources/sql/mysql/`、`lts-admin/src/main/resources/sql/mysql/`、`lts-monitor/src/main/resources/sql/mysql/`（监控表，若启用）。 |
+| **（可选）告警邮件** | 任意支持 **SMTP** 的服务           | 配置 `configs.mail.*`（见 JobTracker 配置示例）。 |
+| **（可选）FailStore** | —                           | leveldb / rocksdb 等为**本机库**，无独立服务版本号；需磁盘及与 OS/CPU 匹配的 **native**（工程带 **leveldbjni / rocksdbjni** 等依赖）。 |
+
+## JobTracker和LTS-Admin部署
+提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
+
+1. 运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
+
+2. 下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
+
+lts-{version}-bin的文件结构
+
+```java
+-- lts-${version}-bin
+    |-- bin
+    |   |-- jobtracker.cmd
+    |   |-- jobtracker.sh
+    |   |-- lts-admin.cmd
+    |   |-- lts-admin.sh
+    |   |-- lts-monitor.cmd
+    |   |-- lts-monitor.sh
+    |   |-- tasktracker.sh
+    |-- conf
+    |   |-- log4j.properties
+    |   |-- lts-admin.cfg
+    |   |-- lts-monitor.cfg
+    |   |-- readme.txt
+    |   |-- tasktracker.cfg
+    |   |-- zoo
+    |       |-- jobtracker.cfg
+    |       |-- log4j.properties
+    |       |-- lts-monitor.cfg
+    |-- lib
+    |   |-- *.jar
+    |-- war
+        |-- jetty
+        |   |-- lib
+        |       |-- *.jar
+        |-- lts-admin.war
+
+```
+
+3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
+4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+
+## JobClient（部署）使用
+需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
+
+### API方式启动
+```java
+JobClient jobClient = new RetryJobClient();
+jobClient.setNodeGroup("test_jobClient");
+jobClient.setClusterName("test_cluster");
+jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+jobClient.start();
+
+// 提交任务
+Job job = new Job();
+job.setTaskId("3213213123");
+job.setParam("shopId", "11111");
+job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+// job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
+// job.setTriggerTime(new Date()); // 支持指定时间执行
+Response response = jobClient.submitJob(job);
+```
+
+### Spring XML方式启动
+```java
+<bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="test_jobClient"/>
+    <property name="masterChangeListeners">
+        <list>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
+        </list>
+    </property>
+    <property name="jobFinishedHandler">
+        <bean class="com.github.ltsopensource.example.support.JobFinishedHandlerImpl"/>
+    </property>
+    <property name="configs">
+        <props>
+            <!-- 参数 -->
+            <prop key="job.fail.store">leveldb</prop>
+        </props>
+    </property>
+</bean>
+```    
+
+### Spring 全注解方式
+```java
+@Configuration
+public class LTSSpringConfig {
+
+    @Bean(name = "jobClient")
+    public JobClient getJobClient() throws Exception {
+        JobClientFactoryBean factoryBean = new JobClientFactoryBean();
+        factoryBean.setClusterName("test_cluster");
+        factoryBean.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        factoryBean.setNodeGroup("test_jobClient");
+        factoryBean.setMasterChangeListeners(new MasterChangeListener[]{
+                new MasterChangeListenerImpl()
+        });
+        Properties configs = new Properties();
+        configs.setProperty("job.fail.store", "leveldb");
+        factoryBean.setConfigs(configs);
+        factoryBean.afterPropertiesSet();
+        return factoryBean.getObject();
+    }
+}
+```
+
+## TaskTracker(部署使用)
+需要引入lts的jar包有`lts-tasktracker-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
+
+### 定义自己的任务执行类
+```java
+public class MyJobRunner implements JobRunner {
+    @Override
+    public Result run(JobContext jobContext) throws Throwable {
+        try {
+            // TODO 业务逻辑
+            // 会发送到 LTS (JobTracker上)
+            jobContext.getBizLogger().info("测试，业务日志啊啊啊啊啊");
+
+        } catch (Exception e) {
+            return new Result(Action.EXECUTE_FAILED, e.getMessage());
+        }
+        return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
+    }
+}
+```
+
+### API方式启动
+```java 
+TaskTracker taskTracker = new TaskTracker();
+taskTracker.setJobRunnerClass(MyJobRunner.class);
+taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+taskTracker.setNodeGroup("test_trade_TaskTracker");
+taskTracker.setClusterName("test_cluster");
+taskTracker.setWorkThreads(20);
+taskTracker.start();
+```
+
+### Spring XML方式启动
+```java
+<bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+    <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
+    <property name="bizLoggerLevel" value="INFO"/>
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="test_trade_TaskTracker"/>
+    <property name="workThreads" value="20"/>
+    <property name="masterChangeListeners">
+        <list>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
+        </list>
+    </property>
+    <property name="configs">
+        <props>
+            <prop key="job.fail.store">leveldb</prop>
+        </props>
+    </property>
+</bean>
+```
+
+### Spring注解方式启动
+```java
+@Configuration
+public class LTSSpringConfig implements ApplicationContextAware {
+    private ApplicationContext applicationContext;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+	@Bean(name = "taskTracker")
+    public TaskTracker getTaskTracker() throws Exception {
+        TaskTrackerAnnotationFactoryBean factoryBean = new TaskTrackerAnnotationFactoryBean();
+        factoryBean.setApplicationContext(applicationContext);
+        factoryBean.setClusterName("test_cluster");
+        factoryBean.setJobRunnerClass(MyJobRunner.class);
+        factoryBean.setNodeGroup("test_trade_TaskTracker");
+        factoryBean.setBizLoggerLevel("INFO");
+        factoryBean.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        factoryBean.setMasterChangeListeners(new MasterChangeListener[]{
+                new MasterChangeListenerImpl()
+        });
+        factoryBean.setWorkThreads(20);
+        Properties configs = new Properties();
+        configs.setProperty("job.fail.store", "leveldb");
+        factoryBean.setConfigs(configs);
+
+        factoryBean.afterPropertiesSet();
+//        factoryBean.start();
+        return factoryBean.getObject();
+    }
+}
+```
+## 参数说明
+[参数说明](https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
+
+## 使用建议
+一般在一个JVM中只需要一个JobClient实例即可，不要为每种任务都新建一个JobClient实例，这样会大大的浪费资源，因为一个JobClient可以提交多种任务。相同的一个JVM一般也尽量保持只有一个TaskTracker实例即可，多了就可能造成资源浪费。当遇到一个TaskTracker要运行多种任务的时候，请参考下面的 "一个TaskTracker执行多种任务"。
+
+## 一个TaskTracker执行多种任务
+有的时候，业务场景需要执行多种任务，有些人会问，是不是要每种任务类型都要一个TaskTracker去执行。我的答案是否定的，如果在一个JVM中，最好使用一个TaskTracker去运行多种任务，因为一个JVM中使用多个TaskTracker实例比较浪费资源（当然当你某种任务量比较多的时候，可以将这个任务单独使用一个TaskTracker节点来执行）。那么怎么才能实现一个TaskTracker执行多种任务呢。下面是我给出来的参考例子。
+
+```java
+/**
+ * 总入口，在 taskTracker.setJobRunnerClass(JobRunnerDispatcher.class)
+ * JobClient 提交 任务时指定 Job 类型  job.setParam("type", "aType")
+ */
+public class JobRunnerDispatcher implements JobRunner {
+
+    private static final ConcurrentHashMap<String/*type*/, JobRunner>
+            JOB_RUNNER_MAP = new ConcurrentHashMap<String, JobRunner>();
+
+    static {
+        JOB_RUNNER_MAP.put("aType", new JobRunnerA()); // 也可以从Spring中拿
+        JOB_RUNNER_MAP.put("bType", new JobRunnerB());
+    }
+
+    @Override
+    public Result run(JobContext jobContext) throws Throwable {
+        Job job = jobContext.getJob();
+        String type = job.getParam("type");
+        return JOB_RUNNER_MAP.get(type).run(job);
+    }
+}
+
+class JobRunnerA implements JobRunner {
+    @Override
+    public Result run(JobContext jobContext) throws Throwable {
+        //  TODO A类型Job的逻辑
+        return null;
+    }
+}
+
+class JobRunnerB implements JobRunner {
+    @Override
+    public Result run(JobContext jobContext) throws Throwable {
+        // TODO B类型Job的逻辑
+        return null;
+    }
+}
+```
+
+## TaskTracker的JobRunner测试
+一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如[lts-examples](https://github.com/ltsopensource/lts-examples)中的例子：
+
+```java
+public class TestJobRunnerTester extends JobRunnerTester {
+
+    public static void main(String[] args) throws Throwable {
+        //  Mock Job 数据
+        Job job = new Job();
+        job.setTaskId("2313213");
+
+        JobContext jobContext = new JobContext();
+        jobContext.setJob(job);
+
+        JobExtInfo jobExtInfo = new JobExtInfo();
+        jobExtInfo.setRetry(false);
+
+        jobContext.setJobExtInfo(jobExtInfo);
+
+        // 运行测试
+        TestJobRunnerTester tester = new TestJobRunnerTester();
+        Result result = tester.run(jobContext);
+        System.out.println(JSON.toJSONString(result));
+    }
+
+    @Override
+    protected void initContext() {
+        // TODO 初始化Spring容器
+    }
+
+    @Override
+    protected JobRunner newJobRunner() {
+        return new TestJobRunner();
+    }
+}
+```
+
+## Spring Quartz Cron任务无缝接入
+对于Quartz的Cron任务只需要在Spring配置中增加一下代码就可以接入LTS平台
+
+```xml
+<bean class="com.github.ltsopensource.spring.quartz.QuartzLTSProxyBean">
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="quartz_test_group"/>
+</bean>
+```
+
+## Spring Boot 支持
+```java
+@SpringBootApplication
+@EnableJobTracker       // 启动JobTracker
+@EnableJobClient        // 启动JobClient
+@EnableTaskTracker      // 启动TaskTracker
+@EnableMonitor          // 启动Monitor
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
+
+## 多网卡选择问题
+当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
+
+## 关于节点标识问题
+如果在节点启动的时候设置节点标识,LTS会默认设置一个UUID为节点标识,可读性会比较差,但是能保证每个节点的唯一性,如果用户能自己保证节点标识的唯一性,可以通过 `setIdentity` 来设置,譬如如果每个节点都是部署在一台机器(一个虚拟机)上,那么可以将identity设置为主机名称
+
+## SPI扩展说明
+支持JobLogger,JobQueue等等的SPI扩展
