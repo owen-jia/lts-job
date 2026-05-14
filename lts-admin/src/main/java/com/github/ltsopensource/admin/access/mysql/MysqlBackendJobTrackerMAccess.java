@@ -8,6 +8,7 @@ import com.github.ltsopensource.monitor.access.domain.JobTrackerMDataPo;
 import com.github.ltsopensource.monitor.access.mysql.MysqlJobTrackerMAccess;
 import com.github.ltsopensource.store.jdbc.builder.DeleteSql;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
+import com.github.ltsopensource.store.jdbc.builder.OrderByType;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 import com.github.ltsopensource.store.jdbc.dbutils.ResultSetHandler;
 
@@ -41,7 +42,8 @@ public class MysqlBackendJobTrackerMAccess extends MysqlJobTrackerMAccess implem
                 .from()
                 .table(getTableName())
                 .whereSql(buildWhereSql(request))
-                .groupBy(" timestamp ASC ")
+                .groupBy(" timestamp ")
+                .orderBy().column("timestamp", OrderByType.ASC)
                 .limit(request.getStart(), request.getLimit())
                 .list(RshHandler.JOB_TRACKER_SUM_M_DATA_RSH);
     }

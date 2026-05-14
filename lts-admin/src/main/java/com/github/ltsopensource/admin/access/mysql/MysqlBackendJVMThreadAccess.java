@@ -9,6 +9,7 @@ import com.github.ltsopensource.monitor.access.domain.JVMThreadDataPo;
 import com.github.ltsopensource.monitor.access.mysql.MysqlJVMThreadAccess;
 import com.github.ltsopensource.store.jdbc.builder.DeleteSql;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
+import com.github.ltsopensource.store.jdbc.builder.OrderByType;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 
 import java.util.List;
@@ -45,7 +46,8 @@ public class MysqlBackendJVMThreadAccess extends MysqlJVMThreadAccess implements
                 .from()
                 .table(getTableName())
                 .whereSql(buildWhereSql(request))
-                .groupBy(" timestamp ASC ")
+                .groupBy(" timestamp ")
+                .orderBy().column("timestamp", OrderByType.ASC)
                 .limit(request.getStart(), request.getLimit())
                 .list(RshHandler.JVM_THREAD_SUM_M_DATA_RSH);
     }

@@ -42,3 +42,10 @@
 #### 6.job分配算法优化
 
 增加轮询算法，保证jobtracker各节点平均；
+
+#### 7 BUG修复清单
+
+2026/5/14
+1. 监控报警模块子页面加载异常，即.groupBy(" timestamp ASC ")问题修复。
+2. 升级mysql驱动包，mysql:mysql-connector-java:8.0.27 和 com.alibaba:druid:1.2.22。
+3. mysql数据库从5.7/5.6，适配支持8.0版本。

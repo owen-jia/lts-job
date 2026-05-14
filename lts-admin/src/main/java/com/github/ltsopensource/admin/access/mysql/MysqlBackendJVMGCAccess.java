@@ -9,6 +9,7 @@ import com.github.ltsopensource.monitor.access.domain.JVMGCDataPo;
 import com.github.ltsopensource.monitor.access.mysql.MysqlJVMGCAccess;
 import com.github.ltsopensource.store.jdbc.builder.DeleteSql;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
+import com.github.ltsopensource.store.jdbc.builder.OrderByType;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 
 import java.util.List;
@@ -48,7 +49,8 @@ public class MysqlBackendJVMGCAccess extends MysqlJVMGCAccess implements Backend
                 .from()
                 .table(getTableName())
                 .whereSql(buildWhereSql(request))
-                .groupBy(" timestamp ASC ")
+                .groupBy(" timestamp ")
+                .orderBy().column("timestamp", OrderByType.ASC)
                 .limit(request.getStart(), request.getLimit())
                 .list(RshHandler.JVM_GC_SUM_M_DATA_RSH);
     }
