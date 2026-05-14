@@ -8,3 +8,4 @@
 */target
 dist2
 .venv-pdf
+.vscode
