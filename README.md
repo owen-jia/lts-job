@@ -127,7 +127,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 | **运行：JRE** | **8**（`1.8`）                | JobTracker、TaskTracker、Admin、Monitor、内嵌 JobClient 等进程均需 **JRE 8+**。 |
 | **注册中心：ZooKeeper** | 服务端 **3.4.14**（或 **3.4.x**） | 工程内 ZK 客户端为 **3.4.5**（`pom.xml` `zk.version`）；**3.5.x / 3.6.x** 多数场景可用，建议压测；**3.7+** 未在文档保证。 |
 | **注册中心：Redis** | **5.0+** 或 **6.x**（常用稳定版）   | 工程使用 **Jedis 2.7.3**（`pom.xml`）；避免依赖仅在新版 Redis 才提供的命令特性即可。 |
-| **MySQL** | 服务端 **5.7.x**（推荐）           | 与自带 SQL（`utf8mb4`、`InnoDB` 等）及当前 **`mysql-connector-java` 5.1.26** 较匹配。**8.0** 可用，但常需为账号开启 **`mysql_native_password`** 或后续升级驱动。 |
+| **MySQL** | 服务端 **5.7.x** / **8.0.x**（推荐） | 工程已升级 **`mysql-connector-java` 8.0.27**（`pom.xml` 中 `mysql.version`），**正式支持 MySQL 8.0**（含 **`caching_sha2_password`** 等默认认证方式）。自带 SQL 面向 **`utf8mb4` + InnoDB**。**JDBC URL** 建议按 Connector/J 8 惯例补充 **`serverTimezone=...`**（如 `Asia/Shanghai`）及按需的 **`useSSL`** 等；**5.6** 及更早版本未在文档保证，请自行验证。 |
 | **MongoDB** | **3.6.x～4.4.x**（推荐自测）       | 工程使用 **mongo-java-driver 3.0.2**；与 **MongoDB 3.x / 4.x** 常见部署搭配多，**5.x+** 请自行验证驱动与协议兼容性。 |
 | **LTS-Admin 数据** | 与上表 **MySQL** 一致            | Admin 控制台数据走 MySQL；`jobT.*` 与 JobTracker 队列/日志配置须一致（见 `conf/lts-admin.cfg`）。 |
 | **数据库初始化** | —                           | MySQL 建表：`lts-core/src/main/resources/sql/mysql/`、`lts-admin/src/main/resources/sql/mysql/`、`lts-monitor/src/main/resources/sql/mysql/`（监控表，若启用）。 |
